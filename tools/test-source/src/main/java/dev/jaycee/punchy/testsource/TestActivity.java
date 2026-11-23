@@ -20,6 +20,26 @@ public final class TestActivity extends Activity {
     @Override public void onCreate(Bundle state) { super.onCreate(state); publish(getIntent()); }
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); publish(intent); }
     private void publish(Intent intent) {
+        if (intent.getBooleanExtra("backdrop", false)) {
+            boolean light = intent.getBooleanExtra("light", false);
+            setContentView(new android.view.View(this) {
+                private final android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+                @Override protected void onDraw(android.graphics.Canvas canvas) {
+                    if (light) { canvas.drawColor(android.graphics.Color.WHITE); return; }
+                    canvas.drawColor(0xFF345B62);
+                    paint.setShader(new android.graphics.LinearGradient(0, 0, getWidth(), getHeight(),
+                        new int[] { 0xFF296A76, 0xFF445877, 0xFF947653 }, null, android.graphics.Shader.TileMode.CLAMP));
+                    canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+                    paint.setShader(null); paint.setColor(0xFFBECEAD);
+                    canvas.drawCircle(getWidth() * .2f, getHeight() * .22f, getWidth() * .32f, paint);
+                    paint.setColor(0xFF6F5E99);
+                    canvas.drawCircle(getWidth() * .8f, getHeight() * .35f, getWidth() * .4f, paint);
+                    paint.setColor(0x99FFFFFF); paint.setStrokeWidth(3);
+                    for (int x = 0; x < getWidth(); x += 24) canvas.drawLine(x, 0, x, getHeight(), paint);
+                }
+            });
+            return;
+        }
         if (intent.getBooleanExtra("open_only", false)) {
             TextView text = new TextView(this); text.setText("Download app opened"); text.setTextSize(24);
             setContentView(text); return;
@@ -39,6 +59,10 @@ public final class TestActivity extends Activity {
                     });
                     music.setActive(true); metadata();
                 }
+                music.setPlaybackToLocal(new android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                    .setContentType(intent.getBooleanExtra("movie", false)
+                        ? android.media.AudioAttributes.CONTENT_TYPE_MOVIE : android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN).build());
                 state(command.equals("pause") ? PlaybackState.STATE_PAUSED : PlaybackState.STATE_PLAYING);
             }
             finish(); return;

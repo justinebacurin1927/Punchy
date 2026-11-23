@@ -6,11 +6,11 @@ Target: **HONOR X7c (ALT-LX2), MagicOS 8.0, Android 14, 720 × 1610**. Android 1
 
 ## Download
 
-[Download Punchy 0.1.2 APK](https://github.com/justinebacurin1927/Punchy/releases/download/v0.1.2/Punchy-0.1.2-debug.apk) · [Release page](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.2) · [Install guide](docs/INSTALL.md)
+[Download Punchy 0.1.3 APK](https://github.com/justinebacurin1927/Punchy/releases/download/v0.1.3/Punchy-0.1.3-debug.apk) · [Release page](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.3) · [Install guide](docs/INSTALL.md)
 
-This is a private repository. Sign in to the owning GitHub account on your phone to access the download. Version 0.1.2 broadens notification progress detection, adds an on-device **Download detection** report, and restores the normal black-filled shape when music pauses. Install over the existing app to retain calibration. Actual Play Store/video-downloader behavior still needs a HONOR retest.
+This is a private repository. Sign in to its owning GitHub account to download. Install over the existing app to retain calibration. Version 0.1.2’s download behavior was confirmed working on Jaycee’s HONOR; 0.1.3 refreshes the interface with ROSS, a black/neon launcher icon using the same approved symbol, and a compact frosted-glass expanded island.
 
-[Version 0.1.2 verification](docs/verification/v0.1.2/summary.md) records build, lint, progress-format integration and settings-preservation checks. Earlier emulator success did not establish compatibility with the notifications actually delivered on the phone.
+[Version 0.1.3 verification](docs/verification/v0.1.3/summary.md) records the actual renders, Android 14 interaction and glass/fallback checks, and settings-preserving upgrade. The new appearance and hardware blur still need a HONOR visual check.
 
 ## Reference
 
@@ -38,10 +38,11 @@ The overlay service requests no screen-content or gesture access. The app has no
 - Only explicit 100% progress triggers the completion hold. Notification removal alone is never treated as success.
 - Off removes the overlay immediately. Idle has no overlay and no animation loop. Screen off, lock screen, and landscape hide it.
 - Normal indicators have an opaque black center. Music automatically uses an independent wide capsule profile, with a clear center to retain native artwork/waveforms. Playback selects the wide profile; pausing restores the normal shape. An already-open combined card retains paused playback controls. Existing X/Y and border thickness apply to both profiles.
-- Tap the indicator for filename, progress and **Open app**. During music, the card also shows artwork when available, title/artist and previous/play-pause/next controls. Close with X, Back or an outside tap. The touch target is at least 48dp; touches outside it work normally.
+- Tap the indicator for a compact glass card with filename, progress and **Open app**. Native cross-window blur softens the actual background when supported; a darker translucent surface keeps text readable when blur is disabled. No screen image is captured. During music, the card also shows artwork when available, title/artist and previous/play-pause/next controls. Close with X, Back or an outside tap. The touch target is at least 48dp; touches outside it work normally.
+- **Music capsule apps** limits the wide profile to chosen players. Muzio, Spotify and YouTube Music are preselected; ordinary video/browser apps stay unselected. Explicit movie-content sessions are excluded. This source selection is independent of download tracking.
 - Detection uses public media sessions through existing notification access. It cannot read HONOR's private capsule bounds; adjust **Music capsule fit** once if needed. Timer/call capsules are outside this detection path.
 - Apps that publish no readable progress notification cannot be tracked. This does not inspect hidden download databases or use private Android APIs.
-- Jaycee confirmed preview rendering, X/Y calibration, border thickness and the normal black center on his HONOR. Real Play Store and video-downloader progress failed in v0.1.1 despite visible notification progress. The v0.1.2 repair, music behavior and background survival need a new phone test. Use **Download detection → Refresh notifications** during a download; its copyable report excludes filenames and message bodies and is never uploaded automatically.
+- Jaycee confirmed the download indicator works seamlessly after v0.1.2, along with earlier preview/alignment/black-center acceptance. Version 0.1.3 changes presentation; its appearance and native hardware blur need a new HONOR visual check. Long-duration background behavior remains unmeasured. Use **Download detection → Refresh notifications** during a download; its copyable report excludes filenames and message bodies and is never uploaded automatically.
 
 ## Build
 
@@ -64,7 +65,12 @@ On the isolated AVD **Punchy_API_34**, Android 14, at **emulator-5556**:
 
 ```sh
 ./gradlew :test-source:assembleDebug :ui-probe:assembleDebug
-python3 scripts/smoke-emulator.py emulator-5556
+python3 scripts/smoke-emulator.py emulator-5556 flows
+python3 scripts/test-media-emulator.py
+python3 scripts/test-glass-emulator.py
+python3 scripts/test-upgrade.py
 ```
 
-This script checks the emulator identity before changing any settings, clears only its Punchy fixture/app data, and writes v0.1.2 results/screenshots under `docs/verification/v0.1.2/`. It refuses to run against a physical phone. Physical HONOR testing remains a separate step.
+This script checks the emulator identity before changing any settings, clears only its Punchy fixture/app data, and writes the UI-flow results/screenshots under `docs/verification/v0.1.3/`. It refuses to run against a physical phone. Physical HONOR testing remains a separate step.
+
+The optional `formats` suite covers the v0.1.2 notification-format cases separately from UI flows, keeping each run short. The accepted notification parser, download-source filters and calibration keys are unchanged in 0.1.3. Music detection now uses selected music apps, so ordinary video/browser sessions cannot force the wide shape. Muzio, Spotify and YouTube Music are preselected; choose other players under Music capsule apps. All fixture APKs are separate from the shipped app.

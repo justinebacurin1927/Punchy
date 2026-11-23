@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-23",
+  "device": "Punchy_API_34 Android14",
+  "physical_youtube_tested": false,
+  "checks": [
+    "Punchy main screen is available for source tests",
+    "Real download remains visible for video-source tests",
+    "Unselected video session with unknown content type cannot force the wide music shape",
+    "Video playback does not claim music capsule mode",
+    "Video-only playback keeps the download-only card without video transport controls",
+    "Download indicator survives closing the video-excluded card",
+    "Selected music player still widens the indicator while a video session exists",
+    "Combined card chooses selected music rather than the other playing video session",
+    "Paused music plus playing video returns to the normal download shape",
+    "Deselecting a playing music source updates the shape immediately",
+    "Reselecting the existing music session restores the wide profile without restarting playback",
+    "Explicit movie-content playback is rejected even from a selected music app",
+    "Music source recovers after its content type changes back from movie",
+    "Download progress updates normally after video and music sessions close",
+    "Removing the download leaves no residual video/music overlay"
+  ],
+  "passed": 15,
+  "tested_apk_sha256": "e596585a67afad9de90e15d58e9805ebcefe32f91e1547e7007daa9b2221a21f"
+}

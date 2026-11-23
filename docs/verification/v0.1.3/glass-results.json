@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-23",
+  "device": "Punchy_API_34 Android14 720\u00d71610 density320",
+  "blur_status": "Blur supported on device: true\nBlur enabled: true",
+  "white_backdrop_secondary_contrast": 4.69,
+  "physical_honor_tested": false,
+  "passed": 19,
+  "checks": [
+    "Download-only glass card shows live progress above another app",
+    "Expanded island is a compact inset floating window",
+    "Close details has at least a 48dp touch target",
+    "Open app has at least a 48dp touch target",
+    "Blur-disabled fallback preserves legible content and app action",
+    "Runtime blur capability change visibly updates the glass surface",
+    "Closing the glass window restores the camera indicator",
+    "Glass secondary text retains 4.5:1 contrast over a white backdrop",
+    "A tap outside dismisses the floating island",
+    "Android Back dismisses the floating island",
+    "Music and download controls share the glass card",
+    "Paused music controls remain available inside the glass card",
+    "Play action still reaches the player",
+    "Glass card actions stay reachable at 150% font size",
+    "Glass card works with system animations disabled",
+    "Advanced setup actions remain reachable through the disclosure",
+    "Turning off all-sources reveals individual app selection",
+    "All-sources mode hides the inapplicable app chooser",
+    "Redesigned diagnostics keep refresh and copy actions available"
+  ],
+  "tested_apk_sha256": "e596585a67afad9de90e15d58e9805ebcefe32f91e1547e7007daa9b2221a21f"
+}

@@ -1,20 +1,26 @@
 <resources>
     <style name="Theme.Punchy" parent="android:style/Theme.Material.NoActionBar">
         <item name="android:fontFamily">sans</item>
-        <item name="android:colorAccent">#B7E5CA</item>
+        <item name="android:colorAccent">#D3FF5F</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:statusBarColor">#111512</item>
-        <item name="android:navigationBarColor">#111512</item>
-        <item name="android:windowBackground">#111512</item>
+        <item name="android:statusBarColor">#090D0E</item>
+        <item name="android:navigationBarColor">#090D0E</item>
+        <item name="android:windowBackground">#090D0E</item>
         <item name="android:windowActionModeOverlay">true</item>
     </style>
     <style name="Theme.Punchy.Popup" parent="Theme.Punchy">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowAnimationStyle">@style/Animation.Punchy.Island</item>
+        <item name="android:windowMinWidthMajor">0dp</item>
+        <item name="android:windowMinWidthMinor">0dp</item>
+    </style>
+    <style name="Animation.Punchy.Island" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/island_enter</item>
+        <item name="android:windowExitAnimation">@anim/island_exit</item>
     </style>
 </resources>

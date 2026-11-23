@@ -13,4 +13,5 @@
         <item quantity="other">%d downloads</item>
     </plurals>
     <string name="overlay_description">Shows download progress around your camera cutout. This service draws the overlay only: it does not read screen content, inspect apps, type, or perform gestures. Download progress comes separately from notification access. You can disable Punchy at any time.</string>
+    <string name="open_download_app">Open app</string>
 </resources>

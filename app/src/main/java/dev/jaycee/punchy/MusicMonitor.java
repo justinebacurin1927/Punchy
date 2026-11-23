@@ -3,6 +3,7 @@ package dev.jaycee.punchy;
 import android.content.ComponentName;
 import android.content.Context;
 import android.media.MediaMetadata;
+import android.media.AudioAttributes;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
@@ -15,6 +16,7 @@ import java.util.List;
 final class MusicMonitor {
     private record Binding(MediaController controller, MediaController.Callback callback) {}
     private final MediaSessionManager manager;
+    private final Context context;
     private final ComponentName listener;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final List<Binding> bindings = new ArrayList<>();
@@ -22,6 +24,7 @@ final class MusicMonitor {
     private boolean registered;
 
     MusicMonitor(Context context) {
+        this.context = context.getApplicationContext();
         manager = context.getSystemService(MediaSessionManager.class);
         listener = new ComponentName(context, DownloadListener.class);
     }
@@ -49,6 +52,7 @@ final class MusicMonitor {
             MediaController.Callback callback = new MediaController.Callback() {
                 @Override public void onPlaybackStateChanged(PlaybackState state) { update(); }
                 @Override public void onMetadataChanged(MediaMetadata metadata) { update(); }
+                @Override public void onAudioInfoChanged(MediaController.PlaybackInfo info) { update(); }
                 @Override public void onSessionDestroyed() {
                     bindings.removeIf(binding -> binding.controller() == controller);
                     controller.unregisterCallback(this);
@@ -60,16 +64,27 @@ final class MusicMonitor {
         }
         update();
     }
-    private void update() {
+    void update() {
         MediaController chosen = null;
         int best = 0;
+        java.util.Set<String> selected = Prefs.musicApps(context);
         for (Binding binding : bindings) {
+            MediaController controller = binding.controller();
+            MediaController.PlaybackInfo info = controller.getPlaybackInfo();
+            boolean movie = info != null && info.getAudioAttributes() != null
+                && info.getAudioAttributes().getContentType() == AudioAttributes.CONTENT_TYPE_MOVIE;
+            if (!MusicSources.accepts(selected, controller.getPackageName(), movie)) continue;
             PlaybackState state = binding.controller().getPlaybackState();
             int rank = rank(state == null ? PlaybackState.STATE_NONE : state.getState());
             if (rank > best) { best = rank; chosen = binding.controller(); }
         }
         PunchyRuntime.music = chosen;
         PunchyRuntime.publish(false);
+    }
+    java.util.Set<String> packages() {
+        java.util.Set<String> packages = new java.util.HashSet<>();
+        for (Binding binding : bindings) packages.add(binding.controller().getPackageName());
+        return packages;
     }
     private static int rank(int state) {
         return switch (state) {

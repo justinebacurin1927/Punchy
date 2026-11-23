@@ -96,7 +96,7 @@ final class RingView extends View {
             measure.getSegment(start, Math.min(length, end), segment, true);
             if (end > length) measure.getSegment(0, end - length, segment, true);
         } else measure.getSegment(0, length * fraction, segment, true);
-        paint.setColor(0xFFB7E5CA);
+        paint.setColor(Ui.MINT);
         canvas.drawPath(segment, paint);
     }
 }

@@ -65,6 +65,10 @@ public final class DownloadListener extends NotificationListenerService {
         if (musicMonitor != null) musicMonitor.stop();
         PunchyRuntime.music = null;
     }
+    void refreshMusic() { if (musicMonitor != null) musicMonitor.update(); }
+    java.util.Set<String> mediaPackages() {
+        return musicMonitor == null ? java.util.Set.of() : musicMonitor.packages();
+    }
     android.app.PendingIntent contentIntent(String key) {
         try {
             StatusBarNotification[] notifications = getActiveNotifications(new String[] { key });

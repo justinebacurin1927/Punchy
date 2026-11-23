@@ -23,6 +23,14 @@ final class Prefs {
         return new HashSet<>(get(c).getStringSet("apps", defaults));
     }
     static boolean tracks(Context c, String pkg) { return allApps(c) || apps(c).contains(pkg); }
+    static Set<String> musicApps(Context c) {
+        return new HashSet<>(get(c).getStringSet("music_apps", MusicSources.DEFAULTS));
+    }
+    static void musicApps(Context c, Set<String> packages) {
+        get(c).edit().putStringSet("music_apps", new HashSet<>(packages)).apply();
+        if (PunchyRuntime.listener != null) PunchyRuntime.listener.refreshMusic();
+        PunchyRuntime.publish(false);
+    }
     static void number(Context c, String key, int value) {
         get(c).edit().putInt(key, value).apply();
         PunchyRuntime.publish(false);

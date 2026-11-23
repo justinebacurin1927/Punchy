@@ -1,0 +1,21 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'dev.jaycee.punchy.testsource'
+    compileSdk 35
+    buildToolsVersion '34.0.0'
+    defaultConfig {
+        applicationId 'dev.jaycee.punchy.videosource'
+        minSdk 34
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+    sourceSets.main {
+        java.srcDirs = ['../test-source/src/main/java']
+        res.srcDirs = ['../test-source/src/main/res']
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

@@ -11,8 +11,6 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,6 +20,7 @@ import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -48,78 +47,84 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         LinearLayout root = Ui.screen(this);
-        Ui.heading(root, "Punchy", 32);
-        Ui.text(root, "Download progress, around your camera.", 16, Ui.MUTED);
+        LinearLayout brand = new LinearLayout(this);
+        brand.setOrientation(LinearLayout.HORIZONTAL); brand.setGravity(Gravity.CENTER_VERTICAL);
+        ImageView logo = new ImageView(this); logo.setImageResource(R.mipmap.ic_launcher);
+        logo.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        LinearLayout.LayoutParams logoSize = new LinearLayout.LayoutParams(Ui.dp(this, 46), Ui.dp(this, 46));
+        logoSize.setMarginEnd(Ui.dp(this, 12)); brand.addView(logo, logoSize);
+        LinearLayout identity = new LinearLayout(this); identity.setOrientation(LinearLayout.VERTICAL);
+        brand.addView(identity, new LinearLayout.LayoutParams(0, -2, 1));
+        Ui.heading(identity, "Punchy", 28);
+        Ui.text(identity, "A little space for your downloads.", 13, Ui.MUTED);
+        root.addView(brand, new LinearLayout.LayoutParams(-1, -2));
 
         LinearLayout main = Ui.card(root);
-        enabled = toggle(main, "Enable Punchy");
-        status = Ui.text(main, "Off", 16, Ui.MUTED);
+        enabled = Ui.toggle(main, "Enable Punchy");
+        status = Ui.text(main, "Off", 13, Ui.MUTED);
         status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         enabled.setOnCheckedChangeListener((button, checked) -> {
             if (updating) return;
             if (!PunchyRuntime.setEnabled(this, checked)) toast("Complete notification access and overlay setup below first.");
             updateState();
         });
-        live = Ui.text(main, "", 16, Ui.TEXT);
+        live = Ui.text(main, "", 15, Ui.TEXT);
         live.setMaxLines(3);
         live.setEllipsize(android.text.TextUtils.TruncateAt.END);
 
         FrameLayout sample = new FrameLayout(this);
         sample.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-        main.addView(sample, new LinearLayout.LayoutParams(-1, Ui.dp(this, 66)));
-        FrameLayout pill = new FrameLayout(this);
-        GradientDrawable black = new GradientDrawable();
-        black.setColor(Color.BLACK);
-        black.setCornerRadius(Ui.dp(this, 24));
-        pill.setBackground(black);
-        FrameLayout.LayoutParams pillParams = new FrameLayout.LayoutParams(Ui.dp(this, 130), Ui.dp(this, 40), Gravity.CENTER);
-        sample.addView(pill, pillParams);
-        RingView illustration = new RingView(this);
-        pill.addView(illustration, new FrameLayout.LayoutParams(-1, -1));
-        illustration.progress(65, false, 2);
-        Ui.text(main, "Sample progress: 65%", 14, Ui.MUTED).setGravity(Gravity.CENTER);
-        preview = Ui.button(main, "Preview on phone · 6 seconds", v -> {
+        main.addView(sample, new LinearLayout.LayoutParams(-1, Ui.dp(this, 100)));
+        sample.addView(new IslandPreviewView(this), new FrameLayout.LayoutParams(-1, -1));
+        Ui.text(main, "Sample progress: 65%", 12, Ui.MUTED).setGravity(Gravity.CENTER);
+        preview = Ui.primaryButton(main, "Preview on phone · 6 seconds", v -> {
             if (PunchyRuntime.overlay != null) { PunchyRuntime.overlay.preview(); toast("Sample ring shown for 6 seconds."); }
         });
-        Ui.button(main, "Adjust shape & alignment", v -> startActivity(new Intent(this, AlignmentActivity.class)));
+        Ui.actionRow(main, "Adjust shape & alignment", GlyphDrawable.SLIDERS, v -> startActivity(new Intent(this, AlignmentActivity.class)));
 
         LinearLayout access = Ui.card(root);
-        Ui.heading(access, "Setup", 20);
-        Ui.text(access, "Two Android settings let Punchy read download progress and draw above the status bar.", 16, Ui.MUTED);
-        notificationAccess = Ui.button(access, "Allow notification access", v -> openNotificationAccess());
-        overlayAccess = Ui.button(access, "Enable overlay service", v -> openSettings(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
-        Ui.text(access, "In Accessibility, choose Punchy progress ring. It draws only; it does not read your screen or control gestures.", 14, Ui.MUTED);
-        Ui.button(access, "Android blocking access?", v -> new AlertDialog.Builder(this)
+        Ui.heading(access, "Setup", 18);
+        Ui.text(access, "Two connections. One quiet little island.", 13, Ui.MUTED);
+        notificationAccess = Ui.actionRow(access, "Allow notification access", GlyphDrawable.NOTIFICATION, v -> openNotificationAccess());
+        Ui.divider(access);
+        overlayAccess = Ui.actionRow(access, "Enable overlay service", GlyphDrawable.LAYERS, v -> openSettings(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        LinearLayout moreSetup = new LinearLayout(this); moreSetup.setOrientation(LinearLayout.VERTICAL);
+        moreSetup.setVisibility(notificationGranted() && overlayEnabled() ? View.GONE : View.VISIBLE);
+        Button more = Ui.actionRow(access, "More setup options", GlyphDrawable.HELP, v -> {
+            boolean show = moreSetup.getVisibility() != View.VISIBLE;
+            Ui.disclosure(access, moreSetup, show);
+            ((Button) v).setText(show ? "Fewer setup options" : "More setup options");
+            v.setStateDescription(show ? "Expanded" : "Collapsed");
+        });
+        more.setText(moreSetup.getVisibility() == View.VISIBLE ? "Fewer setup options" : "More setup options");
+        more.setStateDescription(moreSetup.getVisibility() == View.VISIBLE ? "Expanded" : "Collapsed");
+        access.addView(moreSetup, new LinearLayout.LayoutParams(-1, -2));
+        Ui.text(moreSetup, "In Accessibility, choose Punchy progress ring. It never reads your screen or controls gestures.", 13, Ui.MUTED);
+        Ui.actionRow(moreSetup, "Android blocking access?", GlyphDrawable.HELP, v -> new AlertDialog.Builder(this)
             .setTitle("Allow restricted settings")
             .setMessage("For a sideloaded app, Android may block notification or accessibility access.\n\nOpen Settings → Apps → Punchy, tap the menu at the top, then Allow restricted settings. Return here and try setup again. MagicOS may use slightly different names.")
             .setPositiveButton("App settings", (dialog, which) -> openSettings(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 android.net.Uri.parse("package:" + getPackageName()))))
             .setNegativeButton("Close", null).show());
-        Ui.button(access, "Add Quick Settings tile", v -> addTile());
+        Ui.actionRow(moreSetup, "Add Quick Settings tile", GlyphDrawable.TILE, v -> addTile());
 
         LinearLayout sources = Ui.card(root);
-        Ui.heading(sources, "Download apps", 20);
-        Ui.text(sources, "All apps with readable progress notifications are included by default. Turn this off to choose specific apps.", 16, Ui.MUTED);
-        allApps = toggle(sources, "All progress notifications");
+        Ui.heading(sources, "Download apps", 18);
+        allApps = Ui.toggle(sources, "All progress notifications");
         allApps.setChecked(Prefs.allApps(this));
-        Ui.text(sources, "Also includes file transfers and app updates.", 14, Ui.MUTED);
+        Ui.text(sources, "Includes transfers and app updates. Turn off to choose individual apps.", 13, Ui.MUTED);
         allApps.setOnCheckedChangeListener((button, checked) -> {
             if (!updating) Prefs.filter(this, checked, Prefs.apps(this));
         });
-        apps = Ui.button(sources, "Choose download apps", v -> chooseApps());
-        Ui.button(sources, "Download detection", v -> startActivity(new Intent(this, DetectionActivity.class)));
-        Ui.text(root, "For your HONOR X7c · Android 14\nA separate overlay, with no network access.", 14, Ui.MUTED);
+        apps = Ui.actionRow(sources, "Choose download apps", GlyphDrawable.APPS, v -> chooseApps());
+        Ui.divider(sources);
+        Ui.actionRow(sources, "Download detection", GlyphDrawable.SCAN, v -> startActivity(new Intent(this, DetectionActivity.class)));
+        Ui.divider(sources);
+        Ui.actionRow(sources, "Music capsule apps", GlyphDrawable.APPS, v -> chooseMusicApps());
+        Ui.text(sources, "Only selected music players use the wide shape. Video apps stay off by default.", 13, Ui.MUTED);
+        TextView privateNote = Ui.text(root, "Punchy has no network access.", 12, Ui.MUTED);
+        privateNote.setGravity(Gravity.CENTER); privateNote.setPadding(0, Ui.dp(this, 20), 0, 0);
         updateState();
-    }
-    private Switch toggle(LinearLayout parent, String label) {
-        Switch toggle = new Switch(this);
-        toggle.setText(label);
-        toggle.setTextSize(18);
-        toggle.setTextColor(Ui.TEXT);
-        toggle.setMinHeight(Ui.dp(this, 58));
-        toggle.setPadding(0, Ui.dp(this, 8), 0, Ui.dp(this, 8));
-        parent.addView(toggle, new LinearLayout.LayoutParams(-1, -2));
-        return toggle;
     }
     @Override public void onResume() {
         super.onResume();
@@ -166,6 +171,7 @@ public final class MainActivity extends Activity {
         } else live.setVisibility(View.GONE);
         preview.setEnabled(PunchyRuntime.ready() && Prefs.enabled(this));
         apps.setEnabled(!Prefs.allApps(this));
+        apps.setVisibility(Prefs.allApps(this) ? View.GONE : View.VISIBLE);
     }
     private void openNotificationAccess() {
         Intent detail = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
@@ -186,6 +192,35 @@ public final class MainActivity extends Activity {
                     || result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED) toast("Punchy is in Quick Settings.");
                 else toast("You can also edit Quick Settings and add Punchy manually.");
             });
+    }
+    @SuppressWarnings("deprecation")
+    private void chooseMusicApps() {
+        PackageManager pm = getPackageManager();
+        Map<String, String> labels = new HashMap<>();
+        Set<String> chosen = Prefs.musicApps(this);
+        for (ResolveInfo item : pm.queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)) {
+            if (item.activityInfo != null && !getPackageName().equals(item.activityInfo.packageName))
+                labels.put(item.activityInfo.packageName, item.loadLabel(pm).toString());
+        }
+        Set<String> packages = new java.util.HashSet<>(chosen);
+        if (PunchyRuntime.listener != null) packages.addAll(PunchyRuntime.listener.mediaPackages());
+        for (String pkg : packages) {
+            try { labels.put(pkg, pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString()); }
+            catch (PackageManager.NameNotFoundException ignored) {
+                if (PunchyRuntime.listener != null && PunchyRuntime.listener.mediaPackages().contains(pkg)) labels.put(pkg, pkg);
+            }
+        }
+        List<String> ordered = new ArrayList<>(labels.keySet());
+        ordered.sort(Comparator.comparing(labels::get, String.CASE_INSENSITIVE_ORDER));
+        String[] names = new String[ordered.size()];
+        boolean[] checked = new boolean[ordered.size()];
+        for (int i = 0; i < ordered.size(); i++) { names[i] = labels.get(ordered.get(i)); checked[i] = chosen.contains(ordered.get(i)); }
+        new AlertDialog.Builder(this).setTitle("Music capsule apps")
+            .setMultiChoiceItems(names, checked, (dialog, which, selected) -> {
+                if (selected) chosen.add(ordered.get(which)); else chosen.remove(ordered.get(which));
+            })
+            .setPositiveButton("Save", (dialog, which) -> Prefs.musicApps(this, chosen))
+            .setNegativeButton("Cancel", null).show();
     }
     @SuppressWarnings("deprecation")
     private void chooseApps() {

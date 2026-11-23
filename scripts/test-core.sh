@@ -6,7 +6,10 @@ trap 'rm -rf -- "$test_dir"' EXIT
 javac --release 17 -d "$test_dir" \
     "$project_dir/app/src/main/java/dev/jaycee/punchy/ProgressTracker.java" \
     "$project_dir/app/src/main/java/dev/jaycee/punchy/ProgressText.java" \
+    "$project_dir/app/src/main/java/dev/jaycee/punchy/MusicSources.java" \
     "$project_dir/tests/ProgressTrackerTest.java" \
-    "$project_dir/tests/ProgressTextTest.java"
+    "$project_dir/tests/ProgressTextTest.java" \
+    "$project_dir/tests/MusicSourcesTest.java"
 java -cp "$test_dir" dev.jaycee.punchy.ProgressTrackerTest
 java -cp "$test_dir" dev.jaycee.punchy.ProgressTextTest
+java -cp "$test_dir" dev.jaycee.punchy.MusicSourcesTest
