@@ -31,6 +31,7 @@ public final class ProgressTracker {
 
     public void remove(String key) { downloads.remove(key); }
     public void clear() { downloads.clear(); }
+    public java.util.Set<String> keys() { return java.util.Set.copyOf(downloads.keySet()); }
 
     public Snapshot snapshot() {
         if (downloads.isEmpty()) return new Snapshot(0, 0, false, "", "");

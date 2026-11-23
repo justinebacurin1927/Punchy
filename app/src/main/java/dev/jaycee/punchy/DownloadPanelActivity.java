@@ -31,8 +31,10 @@ import android.widget.Toast;
 /** A translucent Activity supplies native Back/outside dismissal and foreground app actions. */
 public final class DownloadPanelActivity extends Activity {
     private final Runnable changed = this::render;
+    private boolean includeMusic;
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        includeMusic = PunchyRuntime.musicPlaying();
         getWindow().setDecorFitsSystemWindows(false);
     }
     @Override public void onResume() {
@@ -59,7 +61,8 @@ public final class DownloadPanelActivity extends Activity {
     private void render() {
         if (!Prefs.enabled(this)) { finish(); return; }
         ProgressTracker.Snapshot snapshot = PunchyRuntime.tracker.snapshot();
-        MediaController music = PunchyRuntime.music;
+        includeMusic |= PunchyRuntime.musicPlaying();
+        MediaController music = includeMusic ? PunchyRuntime.music : null;
         FrameLayout backdrop = new FrameLayout(this);
         backdrop.setOnClickListener(v -> finish());
         ScrollView scroll = new ScrollView(this);

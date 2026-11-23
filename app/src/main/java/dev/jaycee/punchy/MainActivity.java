@@ -99,7 +99,7 @@ public final class MainActivity extends Activity {
 
         LinearLayout sources = Ui.card(root);
         Ui.heading(sources, "Download apps", 20);
-        Ui.text(sources, "Browsers and system downloads are selected by default. Apps must publish a progress notification.", 16, Ui.MUTED);
+        Ui.text(sources, "All apps with readable progress notifications are included by default. Turn this off to choose specific apps.", 16, Ui.MUTED);
         allApps = toggle(sources, "All progress notifications");
         allApps.setChecked(Prefs.allApps(this));
         Ui.text(sources, "Also includes file transfers and app updates.", 14, Ui.MUTED);
@@ -107,6 +107,7 @@ public final class MainActivity extends Activity {
             if (!updating) Prefs.filter(this, checked, Prefs.apps(this));
         });
         apps = Ui.button(sources, "Choose download apps", v -> chooseApps());
+        Ui.button(sources, "Download detection", v -> startActivity(new Intent(this, DetectionActivity.class)));
         Ui.text(root, "For your HONOR X7c · Android 14\nA separate overlay, with no network access.", 14, Ui.MUTED);
         updateState();
     }
@@ -153,7 +154,7 @@ public final class MainActivity extends Activity {
         else if (!PunchyRuntime.ready()) status.setText(R.string.waiting_connection);
         else if (Prefs.enabled(this) && PunchyRuntime.overlay.lastError != null) status.setText(PunchyRuntime.overlay.lastError);
         else status.setText(Prefs.enabled(this)
-            ? PunchyRuntime.music != null ? "On · Music capsule mode" : "On · Watching for downloads"
+            ? PunchyRuntime.musicPlaying() ? "On · Music capsule mode" : "On · Watching for downloads"
             : "Off · No progress overlay");
         ProgressTracker.Snapshot snapshot = PunchyRuntime.tracker.snapshot();
         if (snapshot.active() && Prefs.enabled(this)) {

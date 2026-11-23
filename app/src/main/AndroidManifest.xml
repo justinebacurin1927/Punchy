@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".AlignmentActivity" android:exported="false" />
+        <activity android:name=".DetectionActivity" android:exported="false" />
         <activity android:name=".DownloadPanelActivity" android:exported="false"
             android:theme="@style/Theme.Punchy.Popup" android:excludeFromRecents="true"
             android:noHistory="true" android:taskAffinity="" />

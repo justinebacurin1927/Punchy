@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-23",
+  "emulator": "Punchy_API_34",
+  "from": "0.1.1",
+  "to": "0.1.2",
+  "preserved": {
+    "x": 9,
+    "y": 4,
+    "stroke": 3,
+    "height": 30,
+    "width": 123,
+    "music_width": 125,
+    "music_height": 41
+  },
+  "explicit_all_apps_filter_preserved": true,
+  "version_code": 3,
+  "passed": true
+}

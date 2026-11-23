@@ -13,7 +13,7 @@ from io import BytesIO
 
 ROOT = Path(__file__).resolve().parents[1]
 SERIAL = sys.argv[1] if len(sys.argv) > 1 else "emulator-5556"
-OUT = ROOT / "docs/verification/v0.1.1"
+OUT = ROOT / "docs/verification/v0.1.2"
 OUT.mkdir(parents=True, exist_ok=True)
 checks = []
 
@@ -113,10 +113,12 @@ def music(command):
     time.sleep(.5)
 
 
-def notification(progress=0, ident=1, unknown=False, cancel=False):
+def notification(progress=0, ident=1, unknown=False, cancel=False, style=None, summary=False):
+    extra = ["--es", "style", style] if style else []
     shell("am", "start", "--activity-clear-top", "--activity-single-top", "-n", "dev.jaycee.punchy.testsource/.TestActivity",
           "--ei", "progress", str(progress), "--ei", "id", str(ident),
-          "--ez", "unknown", str(unknown).lower(), "--ez", "cancel", str(cancel).lower())
+          "--ez", "unknown", str(unknown).lower(), "--ez", "cancel", str(cancel).lower(),
+          "--ez", "summary", str(summary).lower(), *extra)
     time.sleep(.3)
 
 
@@ -153,12 +155,62 @@ shell("settings", "put", "secure", "enabled_accessibility_services", "dev.jaycee
 shell("settings", "put", "secure", "accessibility_enabled", "1")
 check(wait_for(lambda: contains("Off · No progress overlay")), "Both Android services connect")
 find_scroll("All progress notifications")
-tap("All progress notifications")
+check(node("All progress notifications").attrib.get("checked") == "true", "New installations include progress sources outside the old preset list")
 top()
 tap("Enable Punchy")
 check(node("Enable Punchy").attrib.get("checked") == "true", "Master toggle enables after setup")
 check(not window(), "Enabled idle state owns no overlay window")
 screenshot("02-ready")
+
+for style, percent in [("text", 14), ("custom", 38), ("long", 73), ("malformed", 26)]:
+    notification(percent, style=style)
+    check(wait_for(window) and contains(f"1 download · {percent}%"), f"{style} notification format produces real overlay progress")
+    find_scroll("Download detection")
+    tap("Download detection")
+    check(contains("dev.jaycee.punchy.testsource") and contains("Notification access connected"), f"Detection report identifies {style} source delivery")
+    if style == "text":
+        check(contains("Text percentage · 14%") and not contains("Test download 1"), "Diagnostic report exposes progress format without filenames or message bodies")
+        screenshot("10-detection-report")
+    if style == "custom":
+        check(contains("Custom progress bar · 38%"), "Public RemoteViews inflation reads the actual custom progress bar")
+    if style == "long":
+        check(contains("Long:7300000000") and contains("Notification fields · 73%"), "Long byte counters survive notification IPC without integer truncation")
+    tap("Back to Punchy")
+    top()
+    notification(81, style=style)
+    check(contains("1 download · 81%"), f"{style} progress updates live rather than staying at its initial value")
+    notification(100, style=style)
+    check(wait_for(lambda: not window()), f"Explicit completion from {style} progress returns to idle")
+    notification(cancel=True)
+    check(wait_for(lambda: not window()), f"Removing {style} progress clears the overlay")
+
+for style in ["ordinary", "media", "battery"]:
+    notification(45, style=style)
+    check(not window(), f"{style} percentage does not masquerade as a download")
+    notification(cancel=True)
+
+notification(60, ident=20, style="group", summary=True)
+check(wait_for(window) and contains("1 download · 60%"), "Summary-only progress is tracked")
+notification(30, ident=21, style="group")
+check(contains("1 download · 30%"), "Group summary and child are not counted twice")
+notification(ident=21, cancel=True)
+check(contains("1 download · 60%"), "Removing a child restores readable summary progress")
+notification(ident=20, cancel=True)
+check(wait_for(lambda: not window()), "Removing a summary clears its progress")
+
+find_scroll("All progress notifications")
+tap("All progress notifications")
+top()
+notification(33)
+check(not window(), "An explicitly selected app filter still excludes unselected sources")
+find_scroll("Download detection")
+tap("Download detection")
+check(contains("Excluded by Download apps filter"), "Detection report explains an app-filter exclusion")
+tap("Allow all progress sources")
+check(wait_for(window) and contains("Notification fields · 33%"), "Allow-all recovery rescans an existing standard progress notification")
+tap("Back to Punchy")
+top()
+notification(cancel=True)
 
 notification(45)
 check(wait_for(window), "A real progress notification attaches the overlay")
@@ -186,8 +238,15 @@ check(contains("Synthetic music 1") and contains("Test download 1"), "Combined c
 screenshot("09-combined-card")
 tap("Pause music")
 check(wait_for(lambda: node("Play music") is not None), "Music pause action reaches the player session")
-tap("Play music")
-check(wait_for(lambda: node("Pause music") is not None), "Music play action reaches the player session")
+tap("Close details")
+check(wait_for(lambda: indicator_width() == normal_width) and indicator_pixel() == (0, 0, 0), "Pausing music restores the normal black-filled shape while the session remains available")
+click_indicator()
+check(contains("Download details") and node("Play music") is None, "Opening the normal indicator during paused music shows download details")
+tap("Close details")
+music("play")
+check(wait_for(lambda: indicator_width() > normal_width), "Resuming playback restores the wide music shape")
+click_indicator()
+check(wait_for(lambda: node("Pause music") is not None), "Resumed playback remains controllable in the combined card")
 tap("Next track")
 check(wait_for(lambda: contains("Synthetic music 2")), "Next-track action updates music metadata")
 tap("Previous track")

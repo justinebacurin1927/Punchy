@@ -115,7 +115,7 @@ public final class RingService extends AccessibilityService {
         try {
             if (!attached) { wm.addView(hitTarget, params); attached = true; }
             else wm.updateViewLayout(hitTarget, params);
-            ring.blackCenter(PunchyRuntime.music == null);
+            ring.blackCenter(!PunchyRuntime.musicPlaying());
             ring.progress(previewing ? 65 : finishing ? 100 : snapshot.percent(),
                 !previewing && !finishing && snapshot.indeterminate(), Prefs.value(this, "stroke", 2));
             lastError = null;
@@ -141,7 +141,7 @@ public final class RingService extends AccessibilityService {
                 }
             }
         }
-        boolean music = PunchyRuntime.music != null;
+        boolean music = PunchyRuntime.musicPlaying();
         int height = Math.round(Prefs.value(this, music ? "music_height" : "height", music ? 40 : 36) * density);
         int width = music ? Math.round(Prefs.value(this, "music_width", 108) * density)
             : Prefs.capsule(this) ? Math.round(Prefs.value(this, "width", 116) * density) : height;

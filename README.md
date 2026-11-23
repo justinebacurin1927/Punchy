@@ -6,11 +6,11 @@ Target: **HONOR X7c (ALT-LX2), MagicOS 8.0, Android 14, 720 × 1610**. Android 1
 
 ## Download
 
-[Download Punchy 0.1.1 APK](https://github.com/justinebacurin1927/Punchy/releases/download/v0.1.1/Punchy-0.1.1-debug.apk) · [Release page](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.1) · [Install guide](docs/INSTALL.md)
+[Download Punchy 0.1.2 APK](https://github.com/justinebacurin1927/Punchy/releases/download/v0.1.2/Punchy-0.1.2-debug.apk) · [Release page](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.2) · [Install guide](docs/INSTALL.md)
 
-This is a private repository. Sign in to the owning GitHub account on your phone to access the download. Version 0.1.1 responds to the first HONOR preview test with a black center, automatic music capsule and expandable details. Install over the existing app to retain calibration. Updated fit and popup need another physical HONOR check.
+This is a private repository. Sign in to the owning GitHub account on your phone to access the download. Version 0.1.2 broadens notification progress detection, adds an on-device **Download detection** report, and restores the normal black-filled shape when music pauses. Install over the existing app to retain calibration. Actual Play Store/video-downloader behavior still needs a HONOR retest.
 
-[Version 0.1.1 verification](docs/verification/v0.1.1/summary.md): build/lint, 25 core state checks, 43 Android 14 flow checks and the 0.1.0 → 0.1.1 settings-preservation test pass.
+[Version 0.1.2 verification](docs/verification/v0.1.2/summary.md) records build, lint, progress-format integration and settings-preservation checks. Earlier emulator success did not establish compatibility with the notifications actually delivered on the phone.
 
 ## Reference
 
@@ -32,16 +32,16 @@ The overlay service requests no screen-content or gesture access. The app has no
 
 ## Behavior and limits
 
-- Reads progress notifications from selected browser/download apps; use **Download apps** to change the selection.
+- Includes all readable progress sources by default; an explicitly saved app selection is respected. Use **Download apps** to change the selection. Reads standard numeric fields, custom notification progress bars and percentages in ongoing/task notifications. Summary-only progress is supported without counting a readable child twice.
 - A determinate download draws a progress border. Unknown totals use a rotating segment; disabled system animations keep it static.
 - Multiple determinate downloads use the mean of their percentages. Different apps' progress units cannot safely be treated as comparable byte counts.
 - Only explicit 100% progress triggers the completion hold. Notification removal alone is never treated as success.
 - Off removes the overlay immediately. Idle has no overlay and no animation loop. Screen off, lock screen, and landscape hide it.
-- Normal indicators have an opaque black center. Music automatically uses an independent wide capsule profile, with a clear center to retain native artwork/waveforms. Active and paused music sessions are included. Existing X/Y and border thickness apply to both profiles.
+- Normal indicators have an opaque black center. Music automatically uses an independent wide capsule profile, with a clear center to retain native artwork/waveforms. Playback selects the wide profile; pausing restores the normal shape. An already-open combined card retains paused playback controls. Existing X/Y and border thickness apply to both profiles.
 - Tap the indicator for filename, progress and **Open app**. During music, the card also shows artwork when available, title/artist and previous/play-pause/next controls. Close with X, Back or an outside tap. The touch target is at least 48dp; touches outside it work normally.
 - Detection uses public media sessions through existing notification access. It cannot read HONOR's private capsule bounds; adjust **Music capsule fit** once if needed. Timer/call capsules are outside this detection path.
 - Apps that publish no readable progress notification cannot be tracked. This does not inspect hidden download databases or use private Android APIs.
-- Jaycee confirmed preview rendering, X/Y calibration and border thickness on his HONOR. Updated capsule fit, popup, real source-app downloads and background survival need another phone test.
+- Jaycee confirmed preview rendering, X/Y calibration, border thickness and the normal black center on his HONOR. Real Play Store and video-downloader progress failed in v0.1.1 despite visible notification progress. The v0.1.2 repair, music behavior and background survival need a new phone test. Use **Download detection → Refresh notifications** during a download; its copyable report excludes filenames and message bodies and is never uploaded automatically.
 
 ## Build
 
@@ -67,4 +67,4 @@ On the isolated AVD **Punchy_API_34**, Android 14, at **emulator-5556**:
 python3 scripts/smoke-emulator.py emulator-5556
 ```
 
-This script checks the emulator identity before changing any settings, clears only its Punchy fixture/app data, and writes v0.1.1 results/screenshots under `docs/verification/v0.1.1/`. It refuses to run against a physical phone. Physical HONOR testing remains a separate step.
+This script checks the emulator identity before changing any settings, clears only its Punchy fixture/app data, and writes v0.1.2 results/screenshots under `docs/verification/v0.1.2/`. It refuses to run against a physical phone. Physical HONOR testing remains a separate step.

@@ -11,6 +11,7 @@ import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.widget.TextView;
+import android.widget.RemoteViews;
 
 /** Separate emulator-only notification producer. It is not bundled in Punchy's APK. */
 public final class TestActivity extends Activity {
@@ -46,15 +47,37 @@ public final class TestActivity extends Activity {
         manager.createNotificationChannel(new NotificationChannel("downloads", "Synthetic downloads", NotificationManager.IMPORTANCE_LOW));
         int id = intent.getIntExtra("id", 1);
         if (intent.getBooleanExtra("cancel", false)) manager.cancel(id);
-        else manager.notify(id, new Notification.Builder(this, "downloads")
+        else {
+            String style = intent.getStringExtra("style");
+            int progress = intent.getIntExtra("progress", 0);
+            Notification.Builder builder = new Notification.Builder(this, "downloads")
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setContentTitle("Test download " + id)
             .setContentText("Synthetic progress for Punchy verification")
             .setContentIntent(PendingIntent.getActivity(this, 0,
                 new Intent(this, TestActivity.class).putExtra("open_only", true),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
-            .setProgress(100, intent.getIntExtra("progress", 0), intent.getBooleanExtra("unknown", false))
-            .setOngoing(true).setOnlyAlertOnce(true).build());
+            .setOngoing(!"ordinary".equals(style)).setOnlyAlertOnce(true);
+            if (style == null || style.equals("group"))
+                builder.setProgress(100, progress, intent.getBooleanExtra("unknown", false));
+            else if (style.equals("custom")) {
+                RemoteViews views = new RemoteViews(getPackageName(), dev.jaycee.punchy.testsource.R.layout.download_progress);
+                views.setTextViewText(dev.jaycee.punchy.testsource.R.id.filename, "Synthetic custom download");
+                views.setProgressBar(dev.jaycee.punchy.testsource.R.id.progress, 100, progress, false);
+                builder.setCustomContentView(views);
+            } else builder.setContentText(progress + "% of 275 MB");
+            if ("media".equals(style)) builder.setCategory(Notification.CATEGORY_TRANSPORT);
+            if ("battery".equals(style)) builder.setContentText("Battery " + progress + "%");
+            if ("group".equals(style)) builder.setGroup("synthetic_downloads")
+                .setGroupSummary(intent.getBooleanExtra("summary", false));
+            Notification notification = builder.build();
+            if ("long".equals(style)) {
+                notification.extras.putLong(Notification.EXTRA_PROGRESS, progress * 100000000L);
+                notification.extras.putLong(Notification.EXTRA_PROGRESS_MAX, 10000000000L);
+            }
+            if ("malformed".equals(style)) notification.extras.putString(Notification.EXTRA_PROGRESS, "invalid");
+            manager.notify(id, notification);
+        }
         finish();
     }
     private static void metadata() {

@@ -49,7 +49,7 @@ public final class AlignmentActivity extends Activity {
         slider(position, "Up / down", "y", -80, 120, 0);
         LinearLayout music = Ui.card(root);
         Ui.heading(music, "Music capsule fit", 20);
-        Ui.text(music, "When music is active or paused, Punchy uses these dimensions and leaves the native artwork visible. The position and border thickness above apply to both shapes.", 14, Ui.MUTED);
+        Ui.text(music, "During playback, Punchy uses these dimensions and leaves the native artwork visible. Pausing restores your normal shape. The position and border thickness above apply to both shapes.", 14, Ui.MUTED);
         slider(music, "Music capsule width", "music_width", 60, 240, 108);
         slider(music, "Music capsule height", "music_height", 24, 90, 40);
         Ui.button(root, "Reset alignment", v -> {

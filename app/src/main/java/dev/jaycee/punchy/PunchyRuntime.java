@@ -17,6 +17,16 @@ final class PunchyRuntime {
     static boolean panelVisible;
 
     static boolean ready() { return listener != null && overlay != null; }
+    static boolean musicPlaying() {
+        var state = music == null ? null : music.getPlaybackState();
+        if (state == null) return false;
+        return switch (state.getState()) {
+            case android.media.session.PlaybackState.STATE_PLAYING,
+                android.media.session.PlaybackState.STATE_BUFFERING,
+                android.media.session.PlaybackState.STATE_CONNECTING -> true;
+            default -> false;
+        };
+    }
     static boolean setEnabled(Context c, boolean enabled) {
         if (enabled && !ready()) return false;
         Prefs.get(c).edit().putBoolean("enabled", enabled).apply();
