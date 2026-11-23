@@ -1,0 +1,19 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'dev.jaycee.punchy'
+    compileSdk 35
+    buildToolsVersion '34.0.0'
+    defaultConfig {
+        applicationId 'dev.jaycee.punchy'
+        minSdk 34
+        targetSdk 34
+        versionCode 1
+        versionName '0.1.0'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    lint { abortOnError true }
+}

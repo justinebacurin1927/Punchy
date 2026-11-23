@@ -1,0 +1,9 @@
+.gradle/
+**/build/
+local.properties
+references/
+*.jks
+*.keystore
+.idea/
+dist/
+docs/design/honor-home-reference.png

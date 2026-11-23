@@ -1,0 +1,4 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:label="Punchy emulator UI probe" android:allowBackup="false" />
+    <instrumentation android:name=".HierarchyProbe" android:targetPackage="dev.jaycee.punchy.uiprobe" />
+</manifest>
