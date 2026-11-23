@@ -40,9 +40,9 @@ tap('Close details')
 music('pause')
 check(wait_for(lambda: indicator_width() == normal_width), 'Paused music plus playing video returns to the normal download shape')
 music('play')
-find_scroll('Music capsule apps');tap('Music capsule apps');tap('Punchy test source');tap('SAVE')
+find_scroll('Music capsule apps');tap('Music capsule apps');tap('Punchy test source');tap('Save')
 check(wait_for(lambda: indicator_width() == normal_width), 'Deselecting a playing music source updates the shape immediately')
-find_scroll('Music capsule apps');tap('Music capsule apps');tap('Punchy test source');tap('SAVE')
+find_scroll('Music capsule apps');tap('Music capsule apps');tap('Punchy test source');tap('Save')
 check(wait_for(lambda: indicator_width() > normal_width), 'Reselecting the existing music session restores the wide profile without restarting playback')
 shell('am', 'start', '--activity-clear-top', '--activity-single-top', '-n', 'dev.jaycee.punchy.testsource/.TestActivity',
       '--es', 'music', 'play', '--ez', 'movie', 'true')
@@ -54,9 +54,9 @@ notification(74)
 top()
 check(contains('1 download · 74%') and indicator_width() == normal_width,
       'Download progress updates normally after video and music sessions close')
-find_scroll('Music capsule apps');screenshot('19-music-source-settings');tap('Music capsule apps');screenshot('20-music-source-chooser');tap('CANCEL');top()
+find_scroll('Music capsule apps');screenshot('19-music-source-settings');tap('Music capsule apps');screenshot('20-music-source-chooser');tap('Cancel');top()
 notification(cancel=True)
 check(wait_for(lambda: not window()), 'Removing the download leaves no residual video/music overlay')
-(OUT/'media-results.json').write_text(json.dumps({'date':'2026-11-23', 'device':'Punchy_API_34 Android14',
+(OUT/'media-results.json').write_text(json.dumps({'date':'2026-11-24', 'device':'Punchy_API_34 Android14',
     'physical_youtube_tested':False, 'checks':checks, 'passed':len(checks)}, indent=2)+'\n')
 print(len(checks), 'music/video checks passed.')

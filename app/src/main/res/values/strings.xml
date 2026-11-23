@@ -14,4 +14,25 @@
     </plurals>
     <string name="overlay_description">Shows download progress around your camera cutout. This service draws the overlay only: it does not read screen content, inspect apps, type, or perform gestures. Download progress comes separately from notification access. You can disable Punchy at any time.</string>
     <string name="open_download_app">Open app</string>
+    <plurals name="selected_apps">
+        <item quantity="one">%d app selected</item>
+        <item quantity="other">%d apps selected</item>
+    </plurals>
+    <string name="chooser_empty">No apps found. Try another name.</string>
+    <string name="detection_access_title">Allow notification access</string>
+    <string name="detection_access_help">Punchy can’t see your downloads yet. Open notification access settings and turn on Punchy. If it’s already on, turn it off and on again.</string>
+    <string name="detection_ring_title">Allow the progress ring</string>
+    <string name="detection_ring_help">Go back to Setup and turn on Punchy progress ring in Accessibility.</string>
+    <string name="detection_restart_title">The ring needs a restart</string>
+    <string name="detection_restart_help">Go back to Setup. Open Accessibility and turn Punchy progress ring off and on again.</string>
+    <string name="detection_off_title">Punchy is off</string>
+    <string name="detection_off_help">Turn on Enable Punchy on the main screen to show your downloads.</string>
+    <string name="detection_found_title">Download found</string>
+    <string name="detection_downloading">Downloading…</string>
+    <string name="detection_found_body">%1$s · %2$s\nYour progress ring is ready to show it.</string>
+    <string name="detection_excluded_title">A download app is left out</string>
+    <string name="detection_excluded_help">Tap Allow all progress sources above to include it.</string>
+    <string name="detection_ready_title">Ready for downloads</string>
+    <string name="detection_ready_help">No download found yet. If one is running, tap Refresh notifications.</string>
+    <string name="detection_checked_at">Last checked · %s</string>
 </resources>

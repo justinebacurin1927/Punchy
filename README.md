@@ -1,76 +1,78 @@
-# Punchy
+<p align="center">
+  <img src="docs/assets/punchy-logo.svg" alt="Punchy logo" width="112" height="112">
+</p>
 
-A personal Android app for Jaycee that shows existing downloads as progress around the camera cutout, with an app switch and Quick Settings toggle.
+<h1 align="center">Punchy</h1>
 
-Target: **HONOR X7c (ALT-LX2), MagicOS 8.0, Android 14, 720 × 1610**. Android 14 minimum. No root or Xposed. Personal sideloaded APK.
+<p align="center">Your downloads, around your camera.</p>
 
-## Download
+<p align="center">
+  <a href="https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.4"><strong>Download the latest APK</strong></a>
+</p>
 
-[Download Punchy 0.1.3 APK](https://github.com/justinebacurin1927/Punchy/releases/download/v0.1.3/Punchy-0.1.3-debug.apk) · [Release page](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.3) · [Install guide](docs/INSTALL.md)
+Punchy puts a download progress ring around your phone’s camera. Tap it to see your download, or view your music and download together in a glass card.
 
-This is a private repository. Sign in to its owning GitHub account to download. Install over the existing app to retain calibration. Version 0.1.2’s download behavior was confirmed working on Jaycee’s HONOR; 0.1.3 refreshes the interface with ROSS, a black/neon launcher icon using the same approved symbol, and a compact frosted-glass expanded island.
+Made for Jaycee’s **HONOR X7c · Android 14 / MagicOS 8**. No root or Xposed needed.
 
-[Version 0.1.3 verification](docs/verification/v0.1.3/summary.md) records the actual renders, Android 14 interaction and glass/fallback checks, and settings-preserving upgrade. The new appearance and hardware blur still need a HONOR visual check.
+## Get started
 
-## Reference
+1. Sign in to GitHub and open the [latest release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.4).
+2. Under **Assets**, download **Punchy-0.1.4-debug.apk** and install it. If you already have Punchy, install over it to keep your settings.
+3. Open Punchy and allow the two settings under **Setup**.
+4. Turn on **Enable Punchy**, then try **Preview on phone**.
+5. Use **Adjust shape & alignment** to fit the ring around your camera.
 
-[hxreborn/punch-hole-download-progress](https://github.com/hxreborn/punch-hole-download-progress), inspected at `3d7a185d40cbd9644cd5ccd9cfb0a3df245b2399` on 2026-11-23. The unmodified shallow clone is in `references/punch-hole-download-progress/` (excluded from this project's Git tracking). Its license is GPL-3.0. Punchy's app implementation is separate; the upstream project is a behavioral and architectural reference.
+This repository is private. Use the GitHub account that owns it to download the APK.
 
-The reference hooks SystemUI through Xposed. Punchy instead reads Android notification progress through `NotificationListenerService` and draws using an accessibility overlay. It is a separate overlay; integration with HONOR's native Magic Capsule has not been verified. It does not download files itself.
+## Make it yours
 
-## Setup on the phone
+- **Download apps:** include every app, or choose the ones you want.
+- **Music capsule apps:** choose music players for the wide ring. Muzio, Spotify and YouTube Music are included by default. Video apps are left out.
+- **Quick Settings:** open **More setup options → Add Quick Settings tile** for an easy on/off switch.
 
-1. Install the APK and open Punchy.
-2. Allow **Notification access** for Punchy.
-3. Enable **Punchy progress ring** in Accessibility settings.
-4. Enable Punchy, tap **Preview on phone**, and adjust alignment if needed.
-5. Add the **Punchy** tile to Quick Settings for one-tap control.
+<img src="docs/verification/v0.1.3/13-glass-music.png" alt="Punchy’s expanded glass card showing music controls and download progress" width="280">
 
-If Android blocks the two access settings for a sideloaded APK, open Settings → Apps → Punchy → the overflow menu → Allow restricted settings, then return to setup. MagicOS wording may differ. If the service is stopped in the background, check Punchy's app launch/battery settings.
+The glass uses your phone’s background blur when available. If your phone turns blur off, Punchy uses a darker background to keep the text readable.
 
-The overlay service requests no screen-content or gesture access. The app has no internet, storage, camera, microphone, root, analytics, account, or advertising dependency.
+## If a download doesn’t appear
 
-## Behavior and limits
+Make sure the downloading app shows progress in your phone’s notifications. Then open **Download detection** in Punchy and tap **Refresh notifications**.
 
-- Includes all readable progress sources by default; an explicitly saved app selection is respected. Use **Download apps** to change the selection. Reads standard numeric fields, custom notification progress bars and percentages in ongoing/task notifications. Summary-only progress is supported without counting a readable child twice.
-- A determinate download draws a progress border. Unknown totals use a rotating segment; disabled system animations keep it static.
-- Multiple determinate downloads use the mean of their percentages. Different apps' progress units cannot safely be treated as comparable byte counts.
-- Only explicit 100% progress triggers the completion hold. Notification removal alone is never treated as success.
-- Off removes the overlay immediately. Idle has no overlay and no animation loop. Screen off, lock screen, and landscape hide it.
-- Normal indicators have an opaque black center. Music automatically uses an independent wide capsule profile, with a clear center to retain native artwork/waveforms. Playback selects the wide profile; pausing restores the normal shape. An already-open combined card retains paused playback controls. Existing X/Y and border thickness apply to both profiles.
-- Tap the indicator for a compact glass card with filename, progress and **Open app**. Native cross-window blur softens the actual background when supported; a darker translucent surface keeps text readable when blur is disabled. No screen image is captured. During music, the card also shows artwork when available, title/artist and previous/play-pause/next controls. Close with X, Back or an outside tap. The touch target is at least 48dp; touches outside it work normally.
-- **Music capsule apps** limits the wide profile to chosen players. Muzio, Spotify and YouTube Music are preselected; ordinary video/browser apps stay unselected. Explicit movie-content sessions are excluded. This source selection is independent of download tracking.
-- Detection uses public media sessions through existing notification access. It cannot read HONOR's private capsule bounds; adjust **Music capsule fit** once if needed. Timer/call capsules are outside this detection path.
-- Apps that publish no readable progress notification cannot be tracked. This does not inspect hidden download databases or use private Android APIs.
-- Jaycee confirmed the download indicator works seamlessly after v0.1.2, along with earlier preview/alignment/black-center acceptance. Version 0.1.3 changes presentation; its appearance and native hardware blur need a new HONOR visual check. Long-duration background behavior remains unmeasured. Use **Download detection → Refresh notifications** during a download; its copyable report excludes filenames and message bodies and is never uploaded automatically.
+Punchy shows a short status and the next step to try. If you need help, tap **Copy detection report** and share it when asked. The copied report leaves out message text and filenames.
 
-## Build
+[More setup help](docs/INSTALL.md)
 
-JDK 17+ (JDK 21 works), Android SDK platform 35, Build Tools 34.0.0. Set `sdk.dir` in untracked `local.properties`, then:
+## What’s new in 0.1.4
+
+- Rounded app choosers with app icons, search and clear Save/Cancel buttons.
+- Easier explanations and a short download-status card.
+- Technical details stay in the copied help report.
+- Removed the unnecessary network note from the main screen.
+
+The glass island, black/neon logo, music-only shape and your saved settings are kept.
+
+## About the project
+
+Punchy reads download notifications from other apps; it does not download files itself. It is a separate camera-area display and cannot read HONOR’s private capsule size. The ring hides when idle, locked or in landscape.
+
+The original idea came from [hxreborn/punch-hole-download-progress](https://github.com/hxreborn/punch-hole-download-progress). That project uses Xposed; Punchy uses Android’s notification access and a drawing-only accessibility service. [Reference notes](docs/research.md).
+
+The app has no ads or analytics. Its accessibility service does not read your screen or control taps.
+
+<details>
+<summary>Build and verification</summary>
+
+Native Java Android app, minimum Android 14. JDK 17+, Android SDK 35 and Build Tools 34.0.0. Configure your local SDK in untracked `local.properties`, then run:
 
 ```sh
 ./gradlew :app:assembleDebug :app:lintDebug
 ./scripts/test-core.sh
 ```
 
-APK: `app/build/outputs/apk/debug/app-debug.apk`. See `docs/research.md` for inspected source and rationale. Canonical design decisions are maintained in Jaycee's local design notebook; actual emulator renders and validation are in `docs/verification/`.
+APK: `app/build/outputs/apk/debug/app-debug.apk`.
 
-The local SDK path is configured in untracked `local.properties`. The official Gradle 8.10.2 wrapper checks its distribution checksum. The app has no third-party runtime dependencies.
+[Latest verification](docs/verification/v0.1.4/summary.md) · [Design notes](docs/design/punchy-glass-direction.md)
 
-## Android integration checks
+Emulator-only fixtures are separate from the installed Punchy app. [Test scripts](scripts/) refuse to run against a physical phone.
 
-`tools/test-source` and `tools/ui-probe` are separate emulator-only APKs; neither is bundled in Punchy. The source posts synthetic progress notifications. The UI probe uses `UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES`, so inspection does not pause the overlay being tested.
-
-On the isolated AVD **Punchy_API_34**, Android 14, at **emulator-5556**:
-
-```sh
-./gradlew :test-source:assembleDebug :ui-probe:assembleDebug
-python3 scripts/smoke-emulator.py emulator-5556 flows
-python3 scripts/test-media-emulator.py
-python3 scripts/test-glass-emulator.py
-python3 scripts/test-upgrade.py
-```
-
-This script checks the emulator identity before changing any settings, clears only its Punchy fixture/app data, and writes the UI-flow results/screenshots under `docs/verification/v0.1.3/`. It refuses to run against a physical phone. Physical HONOR testing remains a separate step.
-
-The optional `formats` suite covers the v0.1.2 notification-format cases separately from UI flows, keeping each run short. The accepted notification parser, download-source filters and calibration keys are unchanged in 0.1.3. Music detection now uses selected music apps, so ordinary video/browser sessions cannot force the wide shape. Muzio, Spotify and YouTube Music are preselected; choose other players under Music capsule apps. All fixture APKs are separate from the shipped app.
+</details>

@@ -25,10 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +39,7 @@ public final class MainActivity extends Activity {
     private Button apps;
     private Switch allApps;
     private boolean updating;
+    private AppChooser chooser;
     private final Runnable stateChanged = this::updateState;
 
     @Override public void onCreate(Bundle savedState) {
@@ -84,7 +82,7 @@ public final class MainActivity extends Activity {
 
         LinearLayout access = Ui.card(root);
         Ui.heading(access, "Setup", 18);
-        Ui.text(access, "Two connections. One quiet little island.", 13, Ui.MUTED);
+        Ui.text(access, "Allow these two settings to show your downloads.", 13, Ui.MUTED);
         notificationAccess = Ui.actionRow(access, "Allow notification access", GlyphDrawable.NOTIFICATION, v -> openNotificationAccess());
         Ui.divider(access);
         overlayAccess = Ui.actionRow(access, "Enable overlay service", GlyphDrawable.LAYERS, v -> openSettings(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
@@ -99,10 +97,10 @@ public final class MainActivity extends Activity {
         more.setText(moreSetup.getVisibility() == View.VISIBLE ? "Fewer setup options" : "More setup options");
         more.setStateDescription(moreSetup.getVisibility() == View.VISIBLE ? "Expanded" : "Collapsed");
         access.addView(moreSetup, new LinearLayout.LayoutParams(-1, -2));
-        Ui.text(moreSetup, "In Accessibility, choose Punchy progress ring. It never reads your screen or controls gestures.", 13, Ui.MUTED);
+        Ui.text(moreSetup, "Open Accessibility and turn on Punchy progress ring.", 13, Ui.MUTED);
         Ui.actionRow(moreSetup, "Android blocking access?", GlyphDrawable.HELP, v -> new AlertDialog.Builder(this)
             .setTitle("Allow restricted settings")
-            .setMessage("For a sideloaded app, Android may block notification or accessibility access.\n\nOpen Settings → Apps → Punchy, tap the menu at the top, then Allow restricted settings. Return here and try setup again. MagicOS may use slightly different names.")
+            .setMessage("If Android won’t let you turn on a setting:\n\nOpen Settings → Apps → Punchy. Tap the menu at the top, then Allow restricted settings. Come back and try again.")
             .setPositiveButton("App settings", (dialog, which) -> openSettings(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 android.net.Uri.parse("package:" + getPackageName()))))
             .setNegativeButton("Close", null).show());
@@ -112,7 +110,7 @@ public final class MainActivity extends Activity {
         Ui.heading(sources, "Download apps", 18);
         allApps = Ui.toggle(sources, "All progress notifications");
         allApps.setChecked(Prefs.allApps(this));
-        Ui.text(sources, "Includes transfers and app updates. Turn off to choose individual apps.", 13, Ui.MUTED);
+        Ui.text(sources, "Show downloads from any app. Turn off to choose your apps.", 13, Ui.MUTED);
         allApps.setOnCheckedChangeListener((button, checked) -> {
             if (!updating) Prefs.filter(this, checked, Prefs.apps(this));
         });
@@ -121,9 +119,7 @@ public final class MainActivity extends Activity {
         Ui.actionRow(sources, "Download detection", GlyphDrawable.SCAN, v -> startActivity(new Intent(this, DetectionActivity.class)));
         Ui.divider(sources);
         Ui.actionRow(sources, "Music capsule apps", GlyphDrawable.APPS, v -> chooseMusicApps());
-        Ui.text(sources, "Only selected music players use the wide shape. Video apps stay off by default.", 13, Ui.MUTED);
-        TextView privateNote = Ui.text(root, "Punchy has no network access.", 12, Ui.MUTED);
-        privateNote.setGravity(Gravity.CENTER); privateNote.setPadding(0, Ui.dp(this, 20), 0, 0);
+        Ui.text(sources, "Choose music players for the wide ring. Video apps are left out.", 13, Ui.MUTED);
         updateState();
     }
     @Override public void onResume() {
@@ -134,6 +130,10 @@ public final class MainActivity extends Activity {
         updateState();
     }
     @Override public void onPause() { PunchyRuntime.observers.remove(stateChanged); super.onPause(); }
+    @Override public void onDestroy() {
+        if (chooser != null) chooser.dismiss();
+        super.onDestroy();
+    }
     private boolean notificationGranted() {
         return getSystemService(NotificationManager.class).isNotificationListenerAccessGranted(new ComponentName(this, DownloadListener.class));
     }
@@ -210,17 +210,7 @@ public final class MainActivity extends Activity {
                 if (PunchyRuntime.listener != null && PunchyRuntime.listener.mediaPackages().contains(pkg)) labels.put(pkg, pkg);
             }
         }
-        List<String> ordered = new ArrayList<>(labels.keySet());
-        ordered.sort(Comparator.comparing(labels::get, String.CASE_INSENSITIVE_ORDER));
-        String[] names = new String[ordered.size()];
-        boolean[] checked = new boolean[ordered.size()];
-        for (int i = 0; i < ordered.size(); i++) { names[i] = labels.get(ordered.get(i)); checked[i] = chosen.contains(ordered.get(i)); }
-        new AlertDialog.Builder(this).setTitle("Music capsule apps")
-            .setMultiChoiceItems(names, checked, (dialog, which, selected) -> {
-                if (selected) chosen.add(ordered.get(which)); else chosen.remove(ordered.get(which));
-            })
-            .setPositiveButton("Save", (dialog, which) -> Prefs.musicApps(this, chosen))
-            .setNegativeButton("Cancel", null).show();
+        chooser = AppChooser.show(this, "Music capsule apps", labels, chosen, selected -> Prefs.musicApps(this, selected));
     }
     @SuppressWarnings("deprecation")
     private void chooseApps() {
@@ -237,18 +227,8 @@ public final class MainActivity extends Activity {
                 labels.put(pkg, pm.getApplicationLabel(info).toString());
             } catch (PackageManager.NameNotFoundException ignored) { }
         }
-        List<String> packages = new ArrayList<>(labels.keySet());
-        packages.sort(Comparator.comparing(labels::get, String.CASE_INSENSITIVE_ORDER));
-        String[] names = new String[packages.size()];
-        boolean[] checked = new boolean[packages.size()];
         Set<String> chosen = Prefs.apps(this);
-        for (int i = 0; i < packages.size(); i++) { names[i] = labels.get(packages.get(i)); checked[i] = chosen.contains(packages.get(i)); }
-        new AlertDialog.Builder(this).setTitle("Track progress from")
-            .setMultiChoiceItems(names, checked, (dialog, which, selected) -> {
-                if (selected) chosen.add(packages.get(which)); else chosen.remove(packages.get(which));
-            })
-            .setPositiveButton("Save", (dialog, which) -> Prefs.filter(this, false, chosen))
-            .setNegativeButton("Cancel", null).show();
+        chooser = AppChooser.show(this, "Choose download apps", labels, chosen, selected -> Prefs.filter(this, false, selected));
     }
     private void toast(String message) { Toast.makeText(this, message, Toast.LENGTH_LONG).show(); }
 }

@@ -22,7 +22,7 @@ public final class AlignmentActivity extends Activity {
         LinearLayout root = Ui.screen(this);
         Ui.backRow(root, "Back to Punchy", v -> finish());
         Ui.heading(root, "Shape & alignment", 26);
-        Ui.text(root, "A precise fit for your camera. Your normal and music shapes keep their own sizes.", 14, Ui.MUTED);
+        Ui.text(root, "Move and resize the ring to fit your camera.", 14, Ui.MUTED);
         Ui.primaryButton(root, "Preview on phone · 6 seconds", v -> preview());
         Ui.actionRow(root, "Stop preview", GlyphDrawable.SCAN, v -> {
             if (PunchyRuntime.overlay != null) { PunchyRuntime.overlay.cancelTransient(); PunchyRuntime.publish(false); }
@@ -47,18 +47,18 @@ public final class AlignmentActivity extends Activity {
         });
         LinearLayout size = Ui.card(root);
         Ui.heading(size, "Size", 18);
-        Ui.text(size, "Height sets the circle diameter. Capsule uses both dimensions.", 13, Ui.MUTED);
+        Ui.text(size, "Height changes the circle size. Use width too for the wide ring.", 13, Ui.MUTED);
         slider(size, "Capsule width", "width", 40, 240, 116);
         slider(size, "Height / circle size", "height", 18, 90, 36);
         slider(size, "Border thickness", "stroke", 1, 8, 2);
         LinearLayout position = Ui.card(root);
         Ui.heading(position, "Position", 18);
-        Ui.text(position, "Offsets from your camera in display units. Negative moves left or up.", 13, Ui.MUTED);
+        Ui.text(position, "Move the sliders to line up the ring with your camera.", 13, Ui.MUTED);
         slider(position, "Left / right", "x", -120, 120, 0);
         slider(position, "Up / down", "y", -80, 120, 0);
         LinearLayout music = Ui.card(root);
         Ui.heading(music, "Music capsule fit", 18);
-        Ui.text(music, "Independent size during playback. Position and thickness stay shared; pausing returns to your normal shape.", 13, Ui.MUTED);
+        Ui.text(music, "Fit the wide ring around your music capsule. Pause music to return to the normal ring.", 13, Ui.MUTED);
         slider(music, "Music capsule width", "music_width", 60, 240, 108);
         slider(music, "Music capsule height", "music_height", 24, 90, 40);
         Ui.actionRow(root, "Reset alignment", GlyphDrawable.REFRESH, v -> {

@@ -13,7 +13,7 @@ from io import BytesIO
 
 ROOT = Path(__file__).resolve().parents[1]
 SERIAL = sys.argv[1] if len(sys.argv) > 1 else "emulator-5556"
-OUT = ROOT / "docs/verification/v0.1.3"
+OUT = ROOT / "docs/verification/v0.1.4"
 OUT.mkdir(parents=True, exist_ok=True)
 SUITE = sys.argv[2] if len(sys.argv) > 2 else "flows"
 assert SUITE in {"flows", "formats", "all"}
@@ -173,7 +173,7 @@ screenshot("02-ready")
 find_scroll("Music capsule apps")
 tap("Music capsule apps")
 tap("Punchy test source")
-tap("SAVE")
+tap("Save")
 top()
 check(not window(), "Selecting the synthetic music player does not create an idle overlay")
 
@@ -183,14 +183,14 @@ if SUITE in {"formats", "all"}:
         check(wait_for(window) and contains(f"1 download · {percent}%"), f"{style} notification format produces real overlay progress")
         find_scroll("Download detection")
         tap("Download detection")
-        check(contains("dev.jaycee.punchy.testsource") and contains("Notification access connected"), f"Detection report identifies {style} source delivery")
+        check(contains("Download found"), f"Detection report identifies {style} source delivery")
         if style == "text":
-            check(contains("Text percentage · 14%") and not contains("Test download 1"), "Diagnostic report exposes progress format without filenames or message bodies")
+            check(contains("14%") and not contains("Test download 1"), "Simple status shows progress without filenames or message bodies")
             screenshot("10-detection-report")
         if style == "custom":
-            check(contains("Custom progress bar · 38%"), "Public RemoteViews inflation reads the actual custom progress bar")
+            check(contains("38%"), "Public RemoteViews inflation reads the actual custom progress bar")
         if style == "long":
-            check(contains("Long:7300000000") and contains("Notification fields · 73%"), "Long byte counters survive notification IPC without integer truncation")
+            check(contains("73%"), "Long byte counters survive notification IPC without integer truncation")
         tap("Back to Punchy")
         top()
         notification(81, style=style)
@@ -221,9 +221,9 @@ if SUITE in {"formats", "all"}:
     check(not window(), "An explicitly selected app filter still excludes unselected sources")
     find_scroll("Download detection")
     tap("Download detection")
-    check(contains("Excluded by Download apps filter"), "Detection report explains an app-filter exclusion")
+    check(contains("A download app is left out"), "Detection report explains an app-filter exclusion")
     tap("Allow all progress sources")
-    check(wait_for(window) and contains("Notification fields · 33%"), "Allow-all recovery rescans an existing standard progress notification")
+    check(wait_for(window) and contains("33%"), "Allow-all recovery rescans an existing standard progress notification")
     tap("Back to Punchy")
     top()
     notification(cancel=True)
@@ -334,7 +334,7 @@ if SUITE in {"flows", "all"}:
 pid = shell("pidof", "dev.jaycee.punchy").strip()
 logs = adb("logcat", "-d", "--pid=" + pid)
 check("FATAL EXCEPTION" not in logs, "No Punchy fatal exception during the integration flow")
-report = {"date": "2026-11-23", "device": "Punchy_API_34 AOSP emulator, 720×1610, Android 14",
+report = {"date": "2026-11-24", "device": "Punchy_API_34 AOSP emulator, 720×1610, Android 14",
           "physical_honor_tested": False, "suite": SUITE, "checks": checks, "passed": len(checks)}
 (OUT / ("formats-results.json" if SUITE == "formats" else "emulator-results.json")).write_text(json.dumps(report, indent=2) + "\n")
 print(f"{len(checks)} Android integration checks passed.", flush=True)

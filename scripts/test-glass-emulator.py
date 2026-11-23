@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "docs/verification/v0.1.3"
+OUT = ROOT / "docs/verification/v0.1.4"
 SERIAL = "emulator-5556"
 checks = []
 
@@ -165,6 +165,6 @@ tap("Back to Punchy")
 shell("input", "keyevent", "KEYCODE_HOME")
 shell("input", "swipe", "360", "1450", "360", "350", "350");time.sleep(.6)
 shot("15-launcher-icon")
-report={"date":"2026-11-23","device":"Punchy_API_34 Android14 720×1610 density320","blur_status":blur_status.strip(),"white_backdrop_secondary_contrast":round(contrast,2),"physical_honor_tested":False,"passed":len(checks),"checks":checks}
+report={"date":"2026-11-24","device":"Punchy_API_34 Android14 720×1610 density320","blur_status":blur_status.strip(),"white_backdrop_secondary_contrast":round(contrast,2),"physical_honor_tested":False,"passed":len(checks),"checks":checks}
 (OUT/"glass-results.json").write_text(json.dumps(report,indent=2)+"\n")
 print(len(checks),"glass checks passed.")

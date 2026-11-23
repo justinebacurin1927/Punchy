@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-24",
+  "version": "0.1.4",
+  "version_code": 5,
+  "build_passed": true,
+  "lint_errors": 0,
+  "lint_warnings": [
+    "OldTargetApi",
+    "SwitchIntDef",
+    "ObsoleteSdkInt"
+  ],
+  "focused_android_checks": 27,
+  "apk_bytes": 254002,
+  "apk_sha256": "e1ef078b2049e1a61bd9a20f1250b90538469bc5cb6663a9b208fa8689ac692a",
+  "unchanged_core_from_0_1_3": [
+    "ProgressTracker",
+    "NotificationProgress",
+    "MusicMonitor",
+    "MusicSources",
+    "Prefs",
+    "RingService",
+    "DownloadPanelActivity"
+  ],
+  "readme_logo_structure_and_original_geometry_checked": true
+}

@@ -1,6 +1,6 @@
 # Install Punchy on your HONOR X7c
 
-1. On your phone, sign in to GitHub and open the [Punchy 0.1.3 release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.3). Under **Assets**, download **Punchy-0.1.3-debug.apk** and install it over the existing app to retain your settings. The repository is private; use its owning account. You can also copy the local `dist/Punchy-0.1.3-debug.apk` file to your phone.
+1. On your phone, sign in to GitHub and open the [Punchy 0.1.4 release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.4). Under **Assets**, download **Punchy-0.1.4-debug.apk** and install it over the existing app to retain your settings. The repository is private; use its owning account. You can also copy the local `dist/Punchy-0.1.4-debug.apk` file to your phone.
 2. Open **Punchy**. Under **Setup**, tap **Allow notification access** and enable Punchy in Android's settings.
 3. Return to Punchy. Tap **Enable overlay service**. In Accessibility settings, find **Punchy progress ring** and enable it.
 4. If Android blocks either setting, open **Settings → Apps → Punchy**, use the menu at the top and choose **Allow restricted settings**. Then return to setup. MagicOS may use slightly different wording.
@@ -15,11 +15,13 @@ Punchy reads existing progress notifications; the source app's download notifica
 
 This is a personal debug update. Public media sessions cannot expose native HONOR capsule geometry, so new fit, popup behavior and background survival require a further phone test. If MagicOS stops the service, inspect Punchy's app launch/battery settings. Disable the Punchy switch at any time to remove the ring; the overlay service and notification access can also be disabled in Android settings.
 
-## If a real download still has no indicator
+## If a download doesn’t appear
 
-Keep the download running with its progress notification visible. In Punchy, open **Download apps → Download detection**, tap **Refresh notifications**, and find the source package (Play Store is `com.android.vending`). The screen distinguishes disconnected access, excluded sources, readable progress and unreadable fields. Use **Allow all progress sources** if excluded. If notification access is disconnected, open its settings and turn Punchy's access off and on, then return and refresh.
+Keep the download running and open **Download detection**. Tap **Refresh notifications**.
 
-If the issue remains, **Copy detection report** and share the text in this conversation. It contains connection status, app package names, progress values/types and parsing results; notification message text and filenames are excluded. No automatic upload or permanent notification log is created. Preview is only a rendering test and does not verify real download detection.
+Punchy will tell you whether it is ready, whether it found a download, or which setting needs attention. Follow the short message on the screen. Tap **Allow all progress sources** if the downloading app was left out.
+
+If you still need help, tap **Copy detection report** and share it when asked. You do not need to understand that report; it contains extra details for troubleshooting and leaves out message text and filenames.
 
 ## Glass island and icon
 
@@ -30,3 +32,7 @@ The launcher keeps Punchy’s original progress/download-arrow symbol, now neon 
 ## Video playback and music shape
 
 YouTube/video/browser media sessions no longer automatically select the wide music profile. **Download apps → Music capsule apps** controls which players can do so; Muzio, Spotify and YouTube Music are preselected. Leave video apps unselected, and select another music player only if you want Punchy to use its wide profile during playback. Movie-content sessions are excluded even from selected apps. This choice affects only the music shape and controls; download progress remains tracked through its separate source filter.
+
+## Choosing apps
+
+The download-app and music-app menus share the new rounded design. Search for an app, tap its row to select it, then tap **Save**. Your choices stay selected while you search for another app. **Cancel**, Back, or a tap outside closes the menu without changing your settings.

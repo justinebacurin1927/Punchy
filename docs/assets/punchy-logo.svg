@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 108 108" role="img" aria-labelledby="title">
+  <title id="title">Punchy</title>
+  <rect width="108" height="108" rx="26" fill="#090d0e"/>
+  <g transform="translate(18 18) scale(3)" fill="none" stroke="#d3ff5f" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21,12 A9,9 0,1 1,12 3 M12,7 L12,16 M8,12 L12,16 L16,12" stroke-width="3.7" opacity=".12"/>
+    <path d="M21,12 A9,9 0,1 1,12 3 M12,7 L12,16 M8,12 L12,16 L16,12" stroke-width="2"/>
+  </g>
+</svg>

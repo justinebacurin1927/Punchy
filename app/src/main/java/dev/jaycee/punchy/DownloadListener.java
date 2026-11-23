@@ -17,6 +17,7 @@ public final class DownloadListener extends NotificationListenerService {
     private int received;
     private long lastReceived;
     private String scanError = "";
+    private long lastChecked;
     @Override public void onListenerConnected() {
         PunchyRuntime.listener = this;
         if (musicMonitor != null) musicMonitor.stop();
@@ -56,6 +57,7 @@ public final class DownloadListener extends NotificationListenerService {
             entries.clear();
             for (StatusBarNotification sbn : active) remember(sbn);
             scanError = "";
+            lastChecked = System.currentTimeMillis();
             reconcile(false);
         } catch (RuntimeException ignored) {
             scanError = "Notification access could not be read. Turn it off and on in Android Settings.";
@@ -178,5 +180,15 @@ public final class DownloadListener extends NotificationListenerService {
         }
         if (entries.isEmpty()) report.append("\n\nNo app notifications were delivered to Punchy. Keep the download running, refresh, and check notification access in Android Settings.");
         return report.toString();
+    }
+    record DetectionStatus(boolean trouble, boolean excluded, long checkedAt) {}
+    DetectionStatus detectionStatus() {
+        boolean excluded = false;
+        for (Entry entry : entries.values()) {
+            NotificationProgress.Result result = entry.inspection().result();
+            if (result != null && (result.unknown() || result.progress() < result.maximum())
+                    && !Prefs.tracks(this, entry.notification().getPackageName())) excluded = true;
+        }
+        return new DetectionStatus(!scanError.isEmpty(), excluded, Math.max(lastChecked, lastReceived));
     }
 }
