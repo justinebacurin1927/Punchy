@@ -45,6 +45,7 @@ public final class HierarchyProbe extends Instrumentation {
         node.getBoundsInScreen(bounds);
         xml.startTag(null, "node");
         xml.attribute(null, "text", node.getText() == null ? "" : node.getText().toString());
+        xml.attribute(null, "description", node.getContentDescription() == null ? "" : node.getContentDescription().toString());
         xml.attribute(null, "checked", Boolean.toString(node.isChecked()));
         xml.attribute(null, "bounds", "[" + bounds.left + "," + bounds.top + "][" + bounds.right + "," + bounds.bottom + "]");
         for (int i = 0; i < node.getChildCount(); i++) {

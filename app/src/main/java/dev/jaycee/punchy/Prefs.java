@@ -37,7 +37,8 @@ final class Prefs {
         PunchyRuntime.publish(false);
     }
     static void resetGeometry(Context c) {
-        get(c).edit().remove("width").remove("height").remove("stroke").remove("x").remove("y").apply();
+        get(c).edit().remove("width").remove("height").remove("stroke").remove("x").remove("y")
+            .remove("music_width").remove("music_height").apply();
         PunchyRuntime.publish(false);
     }
 }

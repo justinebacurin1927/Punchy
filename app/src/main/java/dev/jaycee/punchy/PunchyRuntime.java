@@ -11,7 +11,10 @@ final class PunchyRuntime {
     static final ProgressTracker tracker = new ProgressTracker();
     static final Set<Runnable> observers = new LinkedHashSet<>();
     static DownloadListener listener;
+    @android.annotation.SuppressLint("StaticFieldLeak") // Bound-service lifetime; cleared in RingService.cleanup().
     static RingService overlay;
+    static android.media.session.MediaController music;
+    static boolean panelVisible;
 
     static boolean ready() { return listener != null && overlay != null; }
     static boolean setEnabled(Context c, boolean enabled) {
@@ -20,6 +23,7 @@ final class PunchyRuntime {
         if (!enabled) {
             tracker.clear();
             if (overlay != null) overlay.cancelTransient();
+            if (listener != null) listener.stopMusic();
         } else if (listener != null) {
             listener.rescan();
         }

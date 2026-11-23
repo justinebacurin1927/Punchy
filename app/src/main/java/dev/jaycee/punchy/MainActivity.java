@@ -152,7 +152,9 @@ public final class MainActivity extends Activity {
         if (!notif || !overlay) status.setText(R.string.finish_setup);
         else if (!PunchyRuntime.ready()) status.setText(R.string.waiting_connection);
         else if (Prefs.enabled(this) && PunchyRuntime.overlay.lastError != null) status.setText(PunchyRuntime.overlay.lastError);
-        else status.setText(Prefs.enabled(this) ? "On · Watching for downloads" : "Off · No progress overlay");
+        else status.setText(Prefs.enabled(this)
+            ? PunchyRuntime.music != null ? "On · Music capsule mode" : "On · Watching for downloads"
+            : "Off · No progress overlay");
         ProgressTracker.Snapshot snapshot = PunchyRuntime.tracker.snapshot();
         if (snapshot.active() && Prefs.enabled(this)) {
             String count = getResources().getQuantityString(R.plurals.download_count, snapshot.count(), snapshot.count());

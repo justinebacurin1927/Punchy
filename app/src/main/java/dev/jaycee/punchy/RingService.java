@@ -19,12 +19,14 @@ import android.view.Gravity;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.FrameLayout;
 
 public final class RingService extends AccessibilityService {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable endTransient = () -> refresh(false);
     private WindowManager wm;
     private RingView ring;
+    private FrameLayout hitTarget;
     private boolean attached;
     private boolean receiverRegistered;
     private long previewUntil;
@@ -81,6 +83,7 @@ public final class RingService extends AccessibilityService {
         previewUntil = completeUntil = 0;
         handler.removeCallbacks(endTransient);
     }
+    boolean previewing() { return SystemClock.uptimeMillis() < previewUntil; }
     void refresh(boolean completed) {
         if (wm == null) return;
         long now = SystemClock.uptimeMillis();
@@ -94,16 +97,25 @@ public final class RingService extends AccessibilityService {
         PowerManager power = getSystemService(PowerManager.class);
         KeyguardManager keyguard = getSystemService(KeyguardManager.class);
         boolean visible = Prefs.enabled(this) && PunchyRuntime.ready()
+            && !PunchyRuntime.panelVisible
             && (previewing || finishing || snapshot.active())
             && power != null && power.isInteractive()
             && keyguard != null && !keyguard.isKeyguardLocked()
             && getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE;
         if (!visible) { detach(); return; }
-        if (ring == null) ring = new RingView(this);
+        if (ring == null) {
+            hitTarget = new FrameLayout(this);
+            hitTarget.setContentDescription("Show download details");
+            hitTarget.setOnClickListener(v -> startActivity(new Intent(this, DownloadPanelActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)));
+            ring = new RingView(this);
+            hitTarget.addView(ring);
+        }
         WindowManager.LayoutParams params = parameters();
         try {
-            if (!attached) { wm.addView(ring, params); attached = true; }
-            else wm.updateViewLayout(ring, params);
+            if (!attached) { wm.addView(hitTarget, params); attached = true; }
+            else wm.updateViewLayout(hitTarget, params);
+            ring.blackCenter(PunchyRuntime.music == null);
             ring.progress(previewing ? 65 : finishing ? 100 : snapshot.percent(),
                 !previewing && !finishing && snapshot.indeterminate(), Prefs.value(this, "stroke", 2));
             lastError = null;
@@ -129,28 +141,41 @@ public final class RingService extends AccessibilityService {
                 }
             }
         }
-        int height = Math.round(Prefs.value(this, "height", 36) * density);
-        int width = Prefs.capsule(this) ? Math.round(Prefs.value(this, "width", 116) * density) : height;
+        boolean music = PunchyRuntime.music != null;
+        int height = Math.round(Prefs.value(this, music ? "music_height" : "height", music ? 40 : 36) * density);
+        int width = music ? Math.round(Prefs.value(this, "music_width", 108) * density)
+            : Prefs.capsule(this) ? Math.round(Prefs.value(this, "width", 116) * density) : height;
         width = Math.max(height, Math.min(width, screenWidth - 4));
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(width, height,
+        int touchWidth = Math.max(Math.round(48 * density), width);
+        int touchHeight = Math.max(Math.round(48 * density), height);
+        int visualX = Math.max(0, Math.min(screenWidth - width,
+            Math.round(centerX - width / 2f + Prefs.value(this, "x", 0) * density)));
+        int visualY = Math.max(0, Math.round(centerY - height / 2f + Prefs.value(this, "y", 0) * density));
+        int windowX = Math.max(0, Math.min(screenWidth - touchWidth, visualX - (touchWidth - width) / 2));
+        int windowY = Math.max(0, visualY - (touchHeight - height) / 2);
+        FrameLayout.LayoutParams child = new FrameLayout.LayoutParams(width, height);
+        child.leftMargin = visualX - windowX;
+        child.topMargin = visualY - windowY;
+        ring.setLayoutParams(child);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(touchWidth, touchHeight,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                 | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP | Gravity.LEFT;
-        params.x = Math.max(0, Math.min(screenWidth - width,
-            Math.round(centerX - width / 2f + Prefs.value(this, "x", 0) * density)));
-        params.y = Math.max(0, Math.round(centerY - height / 2f + Prefs.value(this, "y", 0) * density));
+        params.x = windowX;
+        params.y = windowY;
         params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
         params.setFitInsetsTypes(0);
         params.setTitle("Punchy download progress");
         return params;
     }
     private void detach() {
-        if (attached && ring != null && wm != null) {
-            try { wm.removeViewImmediate(ring); } catch (IllegalArgumentException ignored) { }
+        if (attached && hitTarget != null && wm != null) {
+            try { wm.removeViewImmediate(hitTarget); } catch (IllegalArgumentException ignored) { }
         }
         attached = false;
         ring = null;
+        hitTarget = null;
     }
 }

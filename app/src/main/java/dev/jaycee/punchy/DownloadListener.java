@@ -7,8 +7,11 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
 public final class DownloadListener extends NotificationListenerService {
+    private MusicMonitor musicMonitor;
     @Override public void onListenerConnected() {
         PunchyRuntime.listener = this;
+        if (musicMonitor != null) musicMonitor.stop();
+        musicMonitor = new MusicMonitor(this);
         rescan();
         PunchyRuntime.connectionChanged(this);
     }
@@ -24,6 +27,7 @@ public final class DownloadListener extends NotificationListenerService {
         if (PunchyRuntime.listener == this) {
             PunchyRuntime.listener = null;
             PunchyRuntime.tracker.clear();
+            stopMusic();
             if (PunchyRuntime.overlay != null) PunchyRuntime.overlay.cancelTransient();
             PunchyRuntime.connectionChanged(this);
         }
@@ -31,6 +35,7 @@ public final class DownloadListener extends NotificationListenerService {
     void rescan() {
         PunchyRuntime.tracker.clear();
         if (Prefs.enabled(this)) {
+            if (musicMonitor != null) musicMonitor.start();
             try {
                 StatusBarNotification[] active = getActiveNotifications();
                 if (active != null) for (StatusBarNotification sbn : active) accept(sbn, false);
@@ -39,6 +44,24 @@ public final class DownloadListener extends NotificationListenerService {
             }
         }
         PunchyRuntime.publish(false);
+    }
+    void stopMusic() {
+        if (musicMonitor != null) musicMonitor.stop();
+        PunchyRuntime.music = null;
+    }
+    android.app.PendingIntent contentIntent(String key) {
+        try {
+            StatusBarNotification[] notifications = getActiveNotifications(new String[] { key });
+            if (notifications != null && notifications.length > 0) return notifications[0].getNotification().contentIntent;
+        } catch (SecurityException ignored) { }
+        return null;
+    }
+    String sourcePackage(String key) {
+        try {
+            StatusBarNotification[] notifications = getActiveNotifications(new String[] { key });
+            if (notifications != null && notifications.length > 0) return notifications[0].getPackageName();
+        } catch (SecurityException ignored) { }
+        return null;
     }
     @Override public void onNotificationPosted(StatusBarNotification sbn) { accept(sbn, true); }
     private void accept(StatusBarNotification sbn, boolean publish) {

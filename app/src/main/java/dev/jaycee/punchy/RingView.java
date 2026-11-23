@@ -9,7 +9,7 @@ import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.view.View;
 
-/** Transparent, non-interactive Canvas border. No polling when determinate or idle. */
+/** Progress border with a black normal center and clear native-music center. */
 final class RingView extends View {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path path = new Path();
@@ -20,6 +20,7 @@ final class RingView extends View {
     private float stroke = 2f;
     private boolean unknown;
     private ValueAnimator animator;
+    private boolean blackCenter = true;
 
     RingView(Context c) {
         super(c);
@@ -27,6 +28,7 @@ final class RingView extends View {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeCap(Paint.Cap.ROUND);
     }
+    void blackCenter(boolean enabled) { blackCenter = enabled; invalidate(); }
     void progress(int percent, boolean indeterminate, int thicknessDp) {
         fraction = Math.max(0, Math.min(1, percent / 100f));
         unknown = indeterminate;
@@ -75,6 +77,12 @@ final class RingView extends View {
     }
     @Override protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (blackCenter) {
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(0xFF000000);
+            canvas.drawPath(path, paint);
+            paint.setStyle(Paint.Style.STROKE);
+        }
         paint.setStrokeWidth(stroke + 2);
         paint.setColor(0xDD0B100D);
         canvas.drawPath(path, paint);

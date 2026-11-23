@@ -8,10 +8,12 @@ import subprocess
 import sys
 import time
 import xml.etree.ElementTree as ET
+from PIL import Image
+from io import BytesIO
 
 ROOT = Path(__file__).resolve().parents[1]
 SERIAL = sys.argv[1] if len(sys.argv) > 1 else "emulator-5556"
-OUT = ROOT / "docs/verification"
+OUT = ROOT / "docs/verification/v0.1.1"
 OUT.mkdir(parents=True, exist_ok=True)
 checks = []
 
@@ -53,14 +55,14 @@ def tree():
 
 
 def node(text):
-    return next((n for n in tree().iter("node") if n.attrib.get("text") == text), None)
+    return next((n for n in tree().iter("node") if text in (n.attrib.get("text"), n.attrib.get("description"))), None)
 
 
 def tap(text):
     item = node(text)
     if item is None:
         raise AssertionError("UI control missing: " + text)
-    x1, y1, x2, y2 = map(int, re.findall(r"\d+", item.attrib["bounds"]))
+    x1, y1, x2, y2 = map(int, re.findall(r"-?\d+", item.attrib["bounds"]))
     shell("input", "tap", str((x1+x2)//2), str((y1+y2)//2))
     time.sleep(.25)
 
@@ -90,15 +92,37 @@ def window():
     return "Punchy download progress" in text
 
 
+def indicator_width():
+    dump = shell("dumpsys", "window", "windows")
+    part = re.search(r"Window #\d+ Window\{[^\n]*Punchy download progress\}:(.*?)(?=\n  Window #|\Z)", dump, re.S)
+    return int(re.search(r"Requested w=(\d+)", part.group(1)).group(1)) if part else 0
+
+
+def indicator_pixel():
+    return Image.open(BytesIO(adb("exec-out", "screencap", "-p", raw=True))).convert("RGB").getpixel((360, 48))
+
+
+def click_indicator():
+    shell("input", "tap", "360", "48")
+    time.sleep(.4)
+
+
+def music(command):
+    shell("am", "start", "--activity-clear-top", "--activity-single-top", "-n",
+          "dev.jaycee.punchy.testsource/.TestActivity", "--es", "music", command)
+    time.sleep(.5)
+
+
 def notification(progress=0, ident=1, unknown=False, cancel=False):
-    shell("am", "start", "-n", "dev.jaycee.punchy.testsource/.TestActivity",
+    shell("am", "start", "--activity-clear-top", "--activity-single-top", "-n", "dev.jaycee.punchy.testsource/.TestActivity",
           "--ei", "progress", str(progress), "--ei", "id", str(ident),
           "--ez", "unknown", str(unknown).lower(), "--ez", "cancel", str(cancel).lower())
     time.sleep(.3)
 
 
 def contains(text):
-    return text in ET.tostring(tree(), encoding="unicode")
+    return any(text in (n.attrib.get("text", "") + "\n" + n.attrib.get("description", ""))
+               for n in tree().iter("node"))
 
 
 assert SERIAL.startswith("emulator-"), "This script may only change an emulator."
@@ -140,9 +164,40 @@ notification(45)
 check(wait_for(window), "A real progress notification attaches the overlay")
 check(contains("1 download · 45%"), "Notification listener reports real 45% progress")
 windows = shell("dumpsys", "window", "windows")
-check("ty=2032" in windows and "NOT_TOUCHABLE" in windows,
-      "Overlay uses the accessibility layer and passes touches through")
+check("ty=2032" in windows and "NOT_TOUCH_MODAL" in windows and "NOT_FOCUSABLE" in windows,
+      "Interactive indicator uses the accessibility layer without taking focus or blocking outside touches")
 screenshot("03-active-circle")
+check(indicator_pixel() == (0, 0, 0), "Normal ring has an opaque black center")
+normal_width = indicator_width()
+click_indicator()
+check(wait_for(lambda: contains("Download details")), "Tapping the normal ring opens download details")
+check(contains("Test download 1") and contains("45%"), "Download card shows the actual filename and percentage")
+check(not window(), "Collapsed indicator hides while its detail card is open")
+screenshot("07-download-card")
+tap("Close details")
+check(wait_for(window), "Closing download details restores the indicator")
+music("play")
+check(wait_for(lambda: indicator_width() > normal_width), "Playing music automatically changes the circle to a wide capsule")
+check(indicator_pixel() != (0, 0, 0), "Music capsule center stays clear for native artwork")
+screenshot("08-music-capsule")
+click_indicator()
+check(wait_for(lambda: contains("Music & downloads")), "Tapping the music capsule opens the combined card")
+check(contains("Synthetic music 1") and contains("Test download 1"), "Combined card includes live music metadata and download details")
+screenshot("09-combined-card")
+tap("Pause music")
+check(wait_for(lambda: node("Play music") is not None), "Music pause action reaches the player session")
+tap("Play music")
+check(wait_for(lambda: node("Pause music") is not None), "Music play action reaches the player session")
+tap("Next track")
+check(wait_for(lambda: contains("Synthetic music 2")), "Next-track action updates music metadata")
+tap("Previous track")
+check(wait_for(lambda: contains("Synthetic music 1")), "Previous-track action reaches the player")
+tap("Open app")
+check(wait_for(lambda: contains("Download app opened")), "Open app follows the download notification's content intent")
+music("stop")
+check(wait_for(lambda: indicator_width() == normal_width), "Closing the music session restores the original circle")
+shell("am", "start", "--activity-clear-top", "-n", "dev.jaycee.punchy/.MainActivity")
+check(wait_for(lambda: contains("1 download · 45%")), "Download tracking survives music and popup transitions")
 notification(25, ident=2)
 check(contains("2 downloads · 35%"), "Simultaneous downloads aggregate correctly")
 notification(100)

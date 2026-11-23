@@ -6,7 +6,7 @@ import java.util.Map;
 /** Notification-driven state. No Android classes, wall clock, or inferred completion. */
 public final class ProgressTracker {
     private record Download(int percent, boolean unknown, String title) {}
-    public record Snapshot(int count, int percent, boolean indeterminate, String title) {
+    public record Snapshot(int count, int percent, boolean indeterminate, String title, String key) {
         public boolean active() { return count > 0; }
     }
     private final Map<String, Download> downloads = new LinkedHashMap<>();
@@ -33,15 +33,18 @@ public final class ProgressTracker {
     public void clear() { downloads.clear(); }
 
     public Snapshot snapshot() {
-        if (downloads.isEmpty()) return new Snapshot(0, 0, false, "");
+        if (downloads.isEmpty()) return new Snapshot(0, 0, false, "", "");
         long sum = 0;
         boolean unknown = false;
         String title = "Download";
-        for (Download d : downloads.values()) {
+        String key = "";
+        for (Map.Entry<String, Download> entry : downloads.entrySet()) {
+            Download d = entry.getValue();
             sum += d.percent();
             unknown |= d.unknown();
             title = d.title();
+            key = entry.getKey();
         }
-        return new Snapshot(downloads.size(), unknown ? 0 : (int) (sum / downloads.size()), unknown, title);
+        return new Snapshot(downloads.size(), unknown ? 0 : (int) (sum / downloads.size()), unknown, title, key);
     }
 }

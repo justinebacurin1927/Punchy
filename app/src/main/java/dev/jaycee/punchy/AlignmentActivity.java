@@ -18,7 +18,7 @@ public final class AlignmentActivity extends Activity {
         LinearLayout root = Ui.screen(this);
         Ui.button(root, "Back to Punchy", v -> finish());
         Ui.heading(root, "Shape & alignment", 28);
-        Ui.text(root, "Start with automatic camera alignment. Use Capsule to place the progress border around your music pill.", 16, Ui.MUTED);
+        Ui.text(root, "Start with automatic camera alignment. Music automatically uses a separate capsule fit.", 16, Ui.MUTED);
         Ui.button(root, "Preview on phone · 6 seconds", v -> preview());
         Ui.button(root, "Stop preview", v -> {
             if (PunchyRuntime.overlay != null) { PunchyRuntime.overlay.cancelTransient(); PunchyRuntime.publish(false); }
@@ -47,12 +47,17 @@ public final class AlignmentActivity extends Activity {
         Ui.text(position, "Offsets from the detected camera. Negative moves left or up; positive moves right or down. Values use Android display units.", 14, Ui.MUTED);
         slider(position, "Left / right", "x", -120, 120, 0);
         slider(position, "Up / down", "y", -80, 120, 0);
+        LinearLayout music = Ui.card(root);
+        Ui.heading(music, "Music capsule fit", 20);
+        Ui.text(music, "When music is active or paused, Punchy uses these dimensions and leaves the native artwork visible. The position and border thickness above apply to both shapes.", 14, Ui.MUTED);
+        slider(music, "Music capsule width", "music_width", 60, 240, 108);
+        slider(music, "Music capsule height", "music_height", 24, 90, 40);
         Ui.button(root, "Reset alignment", v -> {
             Prefs.resetGeometry(this);
             buildScreen();
             previewQuietly();
         });
-        Ui.text(root, "The ring passes touches through. It hides in landscape, while locked, and when the screen is off.", 14, Ui.MUTED);
+        Ui.text(root, "Tap the ring to open download details. With music active, the card also includes music controls. The indicator hides in landscape, while locked, and when the screen is off.", 14, Ui.MUTED);
     }
     private RadioButton choice(String label) {
         RadioButton button = new RadioButton(this);

@@ -6,9 +6,11 @@ Target: **HONOR X7c (ALT-LX2), MagicOS 8.0, Android 14, 720 × 1610**. Android 1
 
 ## Download
 
-[Download Punchy 0.1.0 APK](https://github.com/justinebacurin1927/Punchy/releases/download/v0.1.0/Punchy-0.1.0-debug.apk) · [Release page](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.0) · [Install guide](docs/INSTALL.md)
+[Download Punchy 0.1.1 APK](https://github.com/justinebacurin1927/Punchy/releases/download/v0.1.1/Punchy-0.1.1-debug.apk) · [Release page](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.1) · [Install guide](docs/INSTALL.md)
 
-This is a private repository. Sign in to the owning GitHub account on your phone to access the download. The first release is a personal test build; physical HONOR validation remains pending.
+This is a private repository. Sign in to the owning GitHub account on your phone to access the download. Version 0.1.1 responds to the first HONOR preview test with a black center, automatic music capsule and expandable details. Install over the existing app to retain calibration. Updated fit and popup need another physical HONOR check.
+
+[Version 0.1.1 verification](docs/verification/v0.1.1/summary.md): build/lint, 25 core state checks, 43 Android 14 flow checks and the 0.1.0 → 0.1.1 settings-preservation test pass.
 
 ## Reference
 
@@ -35,9 +37,11 @@ The overlay service requests no screen-content or gesture access. The app has no
 - Multiple determinate downloads use the mean of their percentages. Different apps' progress units cannot safely be treated as comparable byte counts.
 - Only explicit 100% progress triggers the completion hold. Notification removal alone is never treated as success.
 - Off removes the overlay immediately. Idle has no overlay and no animation loop. Screen off, lock screen, and landscape hide it.
-- The ring is transparent inside and passes all touches through. Circle and capsule shapes plus size/position controls accommodate the camera and the music pill.
+- Normal indicators have an opaque black center. Music automatically uses an independent wide capsule profile, with a clear center to retain native artwork/waveforms. Active and paused music sessions are included. Existing X/Y and border thickness apply to both profiles.
+- Tap the indicator for filename, progress and **Open app**. During music, the card also shows artwork when available, title/artist and previous/play-pause/next controls. Close with X, Back or an outside tap. The touch target is at least 48dp; touches outside it work normally.
+- Detection uses public media sessions through existing notification access. It cannot read HONOR's private capsule bounds; adjust **Music capsule fit** once if needed. Timer/call capsules are outside this detection path.
 - Apps that publish no readable progress notification cannot be tracked. This does not inspect hidden download databases or use private Android APIs.
-- Placement, Magic Capsule overlap, and MagicOS background survival must be checked on the physical HONOR. A successful APK build does not verify those behaviors.
+- Jaycee confirmed preview rendering, X/Y calibration and border thickness on his HONOR. Updated capsule fit, popup, real source-app downloads and background survival need another phone test.
 
 ## Build
 
@@ -63,4 +67,4 @@ On the isolated AVD **Punchy_API_34**, Android 14, at **emulator-5556**:
 python3 scripts/smoke-emulator.py emulator-5556
 ```
 
-This script checks the emulator identity before changing any settings, clears only its Punchy fixture/app data, and writes results/screenshots under `docs/verification/`. It refuses to run against a physical phone. Physical HONOR testing remains a separate step.
+This script checks the emulator identity before changing any settings, clears only its Punchy fixture/app data, and writes v0.1.1 results/screenshots under `docs/verification/v0.1.1/`. It refuses to run against a physical phone. Physical HONOR testing remains a separate step.
