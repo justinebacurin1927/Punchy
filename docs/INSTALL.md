@@ -1,6 +1,6 @@
 # Install Punchy on your HONOR X7c
 
-1. On your phone, sign in to GitHub and open the [Punchy 0.1.4 release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.4). Under **Assets**, download **Punchy-0.1.4-debug.apk** and install it over the existing app to retain your settings. The repository is private; use its owning account. You can also copy the local `dist/Punchy-0.1.4-debug.apk` file to your phone.
+1. On your phone, open the [Punchy 0.1.4 release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.4). Under **Assets**, download **Punchy-0.1.4-debug.apk** and install it over the existing app to retain your settings. You can also copy the local `dist/Punchy-0.1.4-debug.apk` file to your phone.
 2. Open **Punchy**. Under **Setup**, tap **Allow notification access** and enable Punchy in Android's settings.
 3. Return to Punchy. Tap **Enable overlay service**. In Accessibility settings, find **Punchy progress ring** and enable it.
 4. If Android blocks either setting, open **Settings → Apps → Punchy**, use the menu at the top and choose **Allow restricted settings**. Then return to setup. MagicOS may use slightly different wording.

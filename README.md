@@ -16,13 +16,13 @@ Made for Jaycee’s **HONOR X7c · Android 14 / MagicOS 8**. No root or Xposed n
 
 ## Get started
 
-1. Sign in to GitHub and open the [latest release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.4).
+1. Open the [latest release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.4).
 2. Under **Assets**, download **Punchy-0.1.4-debug.apk** and install it. If you already have Punchy, install over it to keep your settings.
 3. Open Punchy and allow the two settings under **Setup**.
 4. Turn on **Enable Punchy**, then try **Preview on phone**.
 5. Use **Adjust shape & alignment** to fit the ring around your camera.
 
-This repository is private. Use the GitHub account that owns it to download the APK.
+Download the APK from the release’s **Assets** section.
 
 ## Make it yours
 
