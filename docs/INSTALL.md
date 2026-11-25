@@ -1,6 +1,6 @@
 # Install Punchy on your HONOR X7c
 
-1. On your phone, open the [Punchy 0.1.4 release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.4). Under **Assets**, download **Punchy-0.1.4-debug.apk** and install it over the existing app to retain your settings. You can also copy the local `dist/Punchy-0.1.4-debug.apk` file to your phone.
+1. On your phone, open the [Punchy 0.1.5 release](https://github.com/justinebacurin1927/Punchy/releases/tag/v0.1.5). Under **Assets**, download **Punchy-0.1.5-debug.apk** and install it over the existing app to retain your settings. You can also copy the local `dist/Punchy-0.1.5-debug.apk` file to your phone.
 2. Open **Punchy**. Under **Setup**, tap **Allow notification access** and enable Punchy in Android's settings.
 3. Return to Punchy. Tap **Enable overlay service**. In Accessibility settings, find **Punchy progress ring** and enable it.
 4. If Android blocks either setting, open **Settings → Apps → Punchy**, use the menu at the top and choose **Allow restricted settings**. Then return to setup. MagicOS may use slightly different wording.
@@ -36,3 +36,15 @@ YouTube/video/browser media sessions no longer automatically select the wide mus
 ## Choosing apps
 
 The download-app and music-app menus share the new rounded design. Search for an app, tap its row to select it, then tap **Save**. Your choices stay selected while you search for another app. **Cancel**, Back, or a tap outside closes the menu without changing your settings.
+
+
+## Before using a banking app
+
+1. In Punchy, tap **Turn off Accessibility** below the main status. Or tap an active ring and use **Turn off Accessibility** in the expanded download/music card.
+2. The ring and card close. Punchy's main screen reports **Accessibility off · Ring paused** once Android confirms the service is off. If it instead says Accessibility is still on, follow the button to Android settings and switch off Punchy progress ring there.
+3. Open your banking app. If the warning remains, follow that bank's instructions; this is not a promise of bank acceptance. Notification access is separate and stays enabled. You can revoke that too in Android settings if needed.
+4. After banking, open Punchy → **Enable Accessibility**. In Android settings enable **Punchy progress ring**, return to Punchy, and turn on **Enable Punchy**. Your calibration and app choices are kept. Punchy cannot reenable Accessibility automatically.
+
+The ordinary Enable Punchy switch and existing Quick Settings tile only stop the display. Use the specifically labeled Turn off Accessibility control when the bank asks for that access to be disabled.
+
+See [Privacy and permissions](../PRIVACY.md), [Security policy](../SECURITY.md), and [APK verification](VERIFY.md) for inspectable project information.

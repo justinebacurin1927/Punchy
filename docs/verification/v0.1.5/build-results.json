@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-25",
+  "version": "0.1.5",
+  "version_code": 6,
+  "build": "assembleDebug and lintDebug passed",
+  "core_checks": {
+    "progress_state": 25,
+    "percentage_parser": 14,
+    "music_source_policy": 12,
+    "total": 51
+  },
+  "lint_errors": 0,
+  "lint_existing_warnings": [
+    "OldTargetApi",
+    "SwitchIntDef",
+    "ObsoleteSdkInt"
+  ],
+  "apk_sha256": "e8f5f593c49c781506ef05ca7bc947b1fa0966b51226918b736aa0a02abca939",
+  "apk_bytes": 261446,
+  "signer_certificate_sha256": "8d3baa023fbbb7cc704189a686d0b203745833369708dffc980722babfb3792e",
+  "debug_build": true,
+  "internet_permission": false,
+  "independent_security_audit": false,
+  "bank_approval": false
+}

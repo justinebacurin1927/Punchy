@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-25",
+  "emulator": "Punchy_API_34",
+  "from": "0.1.4",
+  "to": "0.1.5",
+  "preserved": {
+    "x": 9,
+    "y": 4,
+    "stroke": 3,
+    "height": 30,
+    "width": 123,
+    "music_width": 125,
+    "music_height": 41
+  },
+  "app_choices_preserved": {
+    "music_apps": [
+      "com.shaiban.audioplayer.mplayer",
+      "custom.music.player"
+    ],
+    "apps": [
+      "com.android.chrome",
+      "custom.downloader"
+    ]
+  },
+  "explicit_all_apps_filter_preserved": true,
+  "display_switch_preserved": true,
+  "no_new_pause_state": true,
+  "version_code": 6,
+  "passed": true,
+  "tested_apk_sha256": "e8f5f593c49c781506ef05ca7bc947b1fa0966b51226918b736aa0a02abca939"
+}

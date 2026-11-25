@@ -47,6 +47,7 @@ public final class RingService extends AccessibilityService {
         setServiceInfo(info);
         wm = getSystemService(WindowManager.class);
         lastError = null;
+        Prefs.get(this).edit().remove("accessibility_paused").apply();
         PunchyRuntime.overlay = this;
         if (!receiverRegistered) {
             IntentFilter filter = new IntentFilter();
@@ -63,6 +64,14 @@ public final class RingService extends AccessibilityService {
     @Override public void onConfigurationChanged(Configuration config) { super.onConfigurationChanged(config); refresh(false); }
     @Override public boolean onUnbind(Intent intent) { cleanup(); return super.onUnbind(intent); }
     @Override public void onDestroy() { cleanup(); super.onDestroy(); }
+    /** User-requested stop: Android removes this service from its enabled list. */
+    void turnOffAccessibility() {
+        Prefs.get(this).edit().putBoolean("accessibility_paused", true).apply();
+        PunchyRuntime.setEnabled(this, false);
+        cancelTransient();
+        detach();
+        disableSelf();
+    }
     private void cleanup() {
         cancelTransient();
         detach();

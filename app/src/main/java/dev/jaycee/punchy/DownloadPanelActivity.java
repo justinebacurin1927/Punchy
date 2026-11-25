@@ -163,6 +163,17 @@ public final class DownloadPanelActivity extends Activity {
         open.setAlpha(open.isEnabled() ? 1 : .4f);
         open.setOnClickListener(v -> openDownload(snapshot.key()));
         card.addView(open, new LinearLayout.LayoutParams(-1, -2));
+        Ui.button(card, "Turn off Accessibility", v -> {
+            RingService service = PunchyRuntime.overlay;
+            if (service != null) service.turnOffAccessibility();
+            else {
+                Toast.makeText(this, "Open Punchy to turn off Accessibility in Android settings.", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, MainActivity.class));
+            }
+            finish();
+        });
+        TextView pauseHelp = label(card, "Stops the ring. Notification access stays on.", 12, SECONDARY, false);
+        pauseHelp.setPadding(0, Ui.dp(this, 8), 0, 0);
         setContentView(scroll);
     }
     private void musicSection(LinearLayout card, MediaController controller) {

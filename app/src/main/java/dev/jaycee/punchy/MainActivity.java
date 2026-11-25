@@ -37,10 +37,13 @@ public final class MainActivity extends Activity {
     private Button overlayAccess;
     private Button preview;
     private Button apps;
+    private Button accessibilityPause;
+    private TextView bankingHelp;
     private Switch allApps;
     private boolean updating;
     private AppChooser chooser;
     private final Runnable stateChanged = this::updateState;
+    private final AccessibilityManager.AccessibilityServicesStateChangeListener accessChanged = manager -> updateState();
 
     @Override public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -66,6 +69,8 @@ public final class MainActivity extends Activity {
             if (!PunchyRuntime.setEnabled(this, checked)) toast("Complete notification access and overlay setup below first.");
             updateState();
         });
+        accessibilityPause = Ui.button(main, "Turn off Accessibility", v -> turnOffAccessibility());
+        bankingHelp = Ui.text(main, "", 13, Ui.MUTED);
         live = Ui.text(main, "", 15, Ui.TEXT);
         live.setMaxLines(3);
         live.setEllipsize(android.text.TextUtils.TruncateAt.END);
@@ -85,7 +90,7 @@ public final class MainActivity extends Activity {
         Ui.text(access, "Allow these two settings to show your downloads.", 13, Ui.MUTED);
         notificationAccess = Ui.actionRow(access, "Allow notification access", GlyphDrawable.NOTIFICATION, v -> openNotificationAccess());
         Ui.divider(access);
-        overlayAccess = Ui.actionRow(access, "Enable overlay service", GlyphDrawable.LAYERS, v -> openSettings(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        overlayAccess = Ui.actionRow(access, "Enable overlay service", GlyphDrawable.LAYERS, v -> openOverlaySettings());
         LinearLayout moreSetup = new LinearLayout(this); moreSetup.setOrientation(LinearLayout.VERTICAL);
         moreSetup.setVisibility(notificationGranted() && overlayEnabled() ? View.GONE : View.VISIBLE);
         Button more = Ui.actionRow(access, "More setup options", GlyphDrawable.HELP, v -> {
@@ -125,11 +130,18 @@ public final class MainActivity extends Activity {
     @Override public void onResume() {
         super.onResume();
         PunchyRuntime.observers.add(stateChanged);
+        AccessibilityManager manager = getSystemService(AccessibilityManager.class);
+        if (manager != null) manager.addAccessibilityServicesStateChangeListener(getMainExecutor(), accessChanged);
         if (notificationGranted() && PunchyRuntime.listener == null)
             NotificationListenerService.requestRebind(new ComponentName(this, DownloadListener.class));
         updateState();
     }
-    @Override public void onPause() { PunchyRuntime.observers.remove(stateChanged); super.onPause(); }
+    @Override public void onPause() {
+        PunchyRuntime.observers.remove(stateChanged);
+        AccessibilityManager manager = getSystemService(AccessibilityManager.class);
+        if (manager != null) manager.removeAccessibilityServicesStateChangeListener(accessChanged);
+        super.onPause();
+    }
     @Override public void onDestroy() {
         if (chooser != null) chooser.dismiss();
         super.onDestroy();
@@ -153,9 +165,16 @@ public final class MainActivity extends Activity {
         allApps.setChecked(Prefs.allApps(this));
         updating = false;
         boolean notif = notificationGranted(), overlay = overlayEnabled();
+        boolean paused = Prefs.accessibilityPaused(this);
         notificationAccess.setText(notif ? "Notification access · Allowed" : "Allow notification access");
         overlayAccess.setText(overlay ? "Overlay service · Enabled" : "Enable overlay service");
-        if (!notif || !overlay) status.setText(R.string.finish_setup);
+        accessibilityPause.setText(!overlay ? "Enable Accessibility" : paused ? "Open Accessibility settings" : "Turn off Accessibility");
+        bankingHelp.setText(!overlay
+            ? "Accessibility is off. To use the ring, enable Punchy progress ring in Android settings, then turn on Enable Punchy."
+            : paused ? "Accessibility is still on. Turn off Punchy progress ring in Android settings."
+            : "Banking app blocking Punchy? Turn off Accessibility here before opening it. The ring stops; notification access stays on.");
+        if (paused && !overlay) status.setText(R.string.accessibility_paused);
+        else if (!notif || !overlay) status.setText(R.string.finish_setup);
         else if (!PunchyRuntime.ready()) status.setText(R.string.waiting_connection);
         else if (Prefs.enabled(this) && PunchyRuntime.overlay.lastError != null) status.setText(PunchyRuntime.overlay.lastError);
         else status.setText(Prefs.enabled(this)
@@ -178,6 +197,20 @@ public final class MainActivity extends Activity {
             .putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, new ComponentName(this, DownloadListener.class).flattenToString());
         try { startActivity(detail); }
         catch (ActivityNotFoundException e) { openSettings(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)); }
+    }
+    private void turnOffAccessibility() {
+        if (!overlayEnabled() || Prefs.accessibilityPaused(this)) { openOverlaySettings(); return; }
+        RingService service = PunchyRuntime.overlay;
+        if (service == null) {
+            toast("Turn off Punchy progress ring in Android settings.");
+            openOverlaySettings();
+            return;
+        }
+        service.turnOffAccessibility();
+        updateState();
+    }
+    private void openOverlaySettings() {
+        openSettings(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
     }
     private void openSettings(Intent intent) {
         try { startActivity(intent); }

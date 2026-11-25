@@ -4,6 +4,7 @@
     <string name="finish_setup">Finish setup below to enable Punchy.</string>
     <string name="overlay_failed">Android could not draw the ring. Re-enable Punchy progress ring in Accessibility settings, then try Preview again.</string>
     <string name="waiting_connection">Waiting for Android to connect the services…</string>
+    <string name="accessibility_paused">Accessibility off · Ring paused</string>
     <string name="alignment_value">%1$s: %2$d</string>
     <string name="percent_value">%d%%</string>
     <string name="active_known">%1$s · %2$d%%\n%3$s</string>

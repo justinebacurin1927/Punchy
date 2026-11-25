@@ -10,6 +10,7 @@ final class Prefs {
     private Prefs() {}
     static SharedPreferences get(Context c) { return c.getApplicationContext().getSharedPreferences("punchy", Context.MODE_PRIVATE); }
     static boolean enabled(Context c) { return get(c).getBoolean("enabled", false); }
+    static boolean accessibilityPaused(Context c) { return get(c).getBoolean("accessibility_paused", false); }
     static boolean allApps(Context c) { return get(c).getBoolean("all_apps", true); }
     static boolean capsule(Context c) { return get(c).getBoolean("capsule", false); }
     static int value(Context c, String name, int fallback) { return get(c).getInt(name, fallback); }
